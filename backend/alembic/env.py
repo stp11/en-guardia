@@ -2,7 +2,7 @@ from logging.config import fileConfig
 
 from alembic import context
 from database import mysql_url
-from models import Episode, SQLModel  # noqa: F401
+from models import Episode, IngestionPosition, SQLModel  # noqa: F401
 from sqlalchemy import engine_from_config, pool
 
 # this is the Alembic Config object, which provides
