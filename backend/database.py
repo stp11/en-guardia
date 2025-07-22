@@ -10,7 +10,9 @@ MYSQL_DATABASE = os.environ.get("MYSQL_DATABASE")
 
 mysql_url = f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}"  # noqa: E501
 
-engine = create_engine(mysql_url, echo=True)
+is_debug = os.environ.get("BUILD_ENVIRONMENT") == "local"
+
+engine = create_engine(mysql_url, echo=is_debug, hide_parameters=True)
 
 
 def get_session():
