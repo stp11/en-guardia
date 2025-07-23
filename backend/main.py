@@ -14,6 +14,6 @@ app = FastAPI(
     redoc_url=None,
     openapi_tags=tags_metadata,
 )
+app.include_router(api_router, prefix="/api")
 
 add_pagination(app)
-app.include_router(api_router, prefix="/api")
