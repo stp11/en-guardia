@@ -1,5 +1,6 @@
 import os
 
+from sqlalchemy.orm import sessionmaker
 from sqlmodel import Session, create_engine
 
 MYSQL_USER = os.environ.get("MYSQL_USER")
@@ -14,7 +15,12 @@ is_debug = os.environ.get("BUILD_ENVIRONMENT") == "local"
 
 engine = create_engine(mysql_url, echo=is_debug, hide_parameters=True)
 
+SessionLocal = sessionmaker(autocommit=False, bind=engine, class_=Session)
+
 
 def get_session():
-    with Session(engine) as session:
-        yield session
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
