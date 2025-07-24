@@ -1,5 +1,6 @@
 from api.endpoints import router as api_router
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi_pagination import add_pagination
 
 tags_metadata = [
@@ -14,6 +15,15 @@ app = FastAPI(
     redoc_url=None,
     openapi_tags=tags_metadata,
 )
-app.include_router(api_router, prefix="/api")
 
+origins = ["http://localhost:5173"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(api_router, prefix="/api")
 add_pagination(app)
