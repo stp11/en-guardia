@@ -1,21 +1,6 @@
 {
   "name": "frontend",
-  "private": true,
   "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "lint:staged": "eslint --ext .ts,.tsx,.svelte --max-warnings=0 --fix",
-    "lint": "eslint . --ext .ts,.tsx,.svelte --max-warnings=0",
-    "lint:fix": "bun run lint -- --fix",
-    "lint:fix:test": "bun run lint:fix && bun run test",
-    "prettier:fix": "prettier --write src/",
-    "prettier:check": "prettier --check src/",
-    "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
-    "generate-client": "rm -rf src/client && npx @hey-api/openapi-ts -i http://localhost:8000/openapi.json -o src/client"
-  },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^6.0.0",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
@@ -24,8 +9,10 @@
     "@typescript-eslint/parser": "^8.38.0",
     "eslint": "^9.31.0",
     "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
     "lint-staged": "^16.1.2",
     "prettier": "^3.6.2",
+    "prettier-plugin-svelte": "^3.4.0",
     "prettier-plugin-tailwindcss": "^0.6.14",
     "svelte": "^5.35.5",
     "svelte-check": "^4.2.2",
@@ -48,9 +35,22 @@
     "src/**/*.{ts,tsx,svelte}": [
       "prettier --write",
       "bun run lint:staged"
-    ],
-    "*.css": [
-      "prettier --write"
     ]
-  }
+  },
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint:staged": "eslint --ext .ts,.tsx,.svelte --max-warnings=0 --fix",
+    "lint": "eslint . --ext .ts,.tsx,.svelte --max-warnings=0",
+    "lint:fix": "bun run lint -- --fix",
+    "lint:fix:test": "bun run lint:fix && bun run test",
+    "prettier:fix": "prettier --write src/",
+    "prettier:check": "prettier --check src/",
+    "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
+    "generate-client": "rm -rf src/client && npx @hey-api/openapi-ts -i http://localhost:8000/openapi.json -o src/client",
+    "prepare": "husky"
+  },
+  "type": "module"
 }

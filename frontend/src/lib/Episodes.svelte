@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { getEpisodesApiEpisodesGet, type Episode } from 'client';
-  import { onMount } from 'svelte';
+  import { type Episode, getEpisodesApiEpisodesGet } from "client";
+  import { onMount } from "svelte";
 
   let episodes: Episode[] = [];
 
