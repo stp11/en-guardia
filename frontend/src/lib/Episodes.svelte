@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { getEpisodesApiEpisodesGet, type Episode } from 'client';
-  import { onMount } from 'svelte';
+  import { type Episode, getEpisodesApiEpisodesGet } from "client";
+
+  import { onMount } from "svelte";
 
   let episodes: Episode[] = [];
 
@@ -11,7 +12,7 @@
 </script>
 
 <div id="episodes">
-  {#each episodes as episode}
+  {#each episodes as episode (episode.id)}
     <div>
       <h2>{episode.title}</h2>
     </div>

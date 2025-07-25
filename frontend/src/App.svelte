@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Hero from 'lib/Hero.svelte';
-  import Episodes from 'lib/Episodes.svelte';
+  import Episodes from "lib/Episodes.svelte";
+  import Hero from "lib/Hero.svelte";
 </script>
 
 <main>
