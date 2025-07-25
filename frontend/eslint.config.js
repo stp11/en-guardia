@@ -11,7 +11,7 @@ import svelteConfig from "./svelte.config.js";
 export default [
   // 1. Global ignores
   {
-    ignores: ["build/", ".svelte-kit/", "dist/", "**/*.css"],
+    ignores: ["build/", ".svelte-kit/", "dist/", "**/*.css", "src/client/**"],
   },
 
   js.configs.recommended,
