@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, synchronize, ready_for_review]
     branches: ["main"]
-    paths-ignore: ["./backend/**"]
+    paths-ignore: ["./backend/**", "./frontend/src/client/**"]
 
   push:
     branches: ["main"]
