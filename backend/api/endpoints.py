@@ -9,6 +9,6 @@ router = APIRouter()
 
 
 @router.get("/episodes", tags=["episodis"], response_model=Page[Episode])
-def get_episodes(session: Session = Depends(get_session)):
+def get_episodes(session: Session = Depends(get_session)):  
     query = select(Episode).order_by(Episode.published_at.desc())
     return paginate(session, query)
