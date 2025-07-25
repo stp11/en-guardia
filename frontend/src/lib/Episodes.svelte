@@ -12,7 +12,7 @@
 </script>
 
 <div id="episodes">
-  {#each episodes as episode (episode.id)}
+  {#each episodes as episode}
     <div>
       <h2>{episode.title}</h2>
     </div>
