@@ -4,11 +4,11 @@ on:
   pull_request:
     types: [opened, synchronize, ready_for_review]
     branches: ["main"]
-    paths-ignore: ["./backend/**", "./frontend/src/client/**"]
+    paths-ignore: ["backend/**", "frontend/src/client/**"]
 
   push:
     branches: ["main"]
-    paths-ignore: ["./backend/**"]
+    paths-ignore: ["backend/**", "frontend/src/client/**"]
 
 jobs:
   lint-frontend:
@@ -17,7 +17,7 @@ jobs:
     if: github.event.pull_request.draft == false
     defaults:
       run:
-        working-directory: ./frontend
+        working-directory: frontend
     steps:
       - uses: actions/checkout@v3
       - uses: oven-sh/setup-bun@v1
