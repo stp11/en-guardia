@@ -13,18 +13,17 @@
 
   onMount(async () => {
     const { data } = await getEpisodesApiEpisodesGet();
-    episodes =
-      data?.items.map((episode) => ({
-        id: episode.id,
-        title: episode.title,
-        description: episode.description,
-      })) ?? [];
+    episodes = data?.items ?? [];
   });
 
   $: table = createSvelteTable({
     data: episodes,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    defaultColumn: {
+      size: 300,
+      minSize: 150,
+    },
   });
 </script>
 
@@ -34,7 +33,7 @@
       {#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
         <Table.Row>
           {#each headerGroup.headers as header (header.id)}
-            <Table.Head colspan={header.colSpan}>
+            <Table.Head colspan={header.colSpan} style={`width: ${header.getSize()}px`}>
               {#if !header.isPlaceholder}
                 <FlexRender
                   content={header.column.columnDef.header}
@@ -50,7 +49,7 @@
       {#each table.getRowModel().rows as row (row.id)}
         <Table.Row data-state={row.getIsSelected() && "selected"}>
           {#each row.getVisibleCells() as cell (cell.id)}
-            <Table.Cell>
+            <Table.Cell style={`width: ${cell.column.getSize()}px`}>
               <FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
             </Table.Cell>
           {/each}
