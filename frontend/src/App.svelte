@@ -1,14 +1,13 @@
 <script lang="ts">
-  import Hero from "lib/components/Hero.svelte";
+  import Footer from "lib/components/app-footer.svelte";
+  import Header from "lib/components/app-header.svelte";
   import Episodes from "lib/components/episodes/index.svelte";
+  import Hero from "lib/components/hero.svelte";
 </script>
 
-<main>
+<Header />
+<main class="px-10 pb-10">
   <Hero />
-  <div class="p-10">
-    <Episodes />
-  </div>
+  <Episodes />
 </main>
-
-<style>
-</style>
+<Footer />
