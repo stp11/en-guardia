@@ -5,7 +5,8 @@ import {
   type TableState,
   createTable,
 } from "@tanstack/table-core";
-import { SvelteSet } from "svelte/reactivity"; 
+import { SvelteSet } from "svelte/reactivity";
+
 
 /**
  * Creates a reactive TanStack table object for Svelte.
