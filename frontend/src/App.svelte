@@ -1,11 +1,13 @@
 <script lang="ts">
-  import Episodes from "lib/Episodes.svelte";
-  import Hero from "lib/Hero.svelte";
+  import Hero from "lib/components/Hero.svelte";
+  import Episodes from "lib/components/episodes/index.svelte";
 </script>
 
 <main>
   <Hero />
-  <Episodes />
+  <div class="p-10">
+    <Episodes />
+  </div>
 </main>
 
 <style>
