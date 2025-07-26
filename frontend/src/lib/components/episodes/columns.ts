@@ -8,11 +8,11 @@ import { renderSnippet } from "../ui/data-table/render-helpers";
 export const columns: ColumnDef<Episode>[] = [
   {
     accessorKey: "title",
-    header: "Title",
+    header: "Títol",
   },
   {
     accessorKey: "description",
-    header: "Description",
+    header: "Descripció",
     size: 200,
     cell: ({ row }) => {
       const descriptionCellSnippet = createRawSnippet(() => ({
