@@ -1,10 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
+  import { Search } from "@lucide/svelte";
   import { getCoreRowModel } from "@tanstack/table-core";
   import { type Episode, getEpisodesApiEpisodesGet } from "client";
 
   import { FlexRender, createSvelteTable } from "lib/components/ui/data-table/index.js";
+  import Input from "lib/components/ui/input.svelte";
   import * as Table from "lib/components/ui/table/index.js";
 
   import { columns } from "./columns";
@@ -27,6 +29,12 @@
   });
 </script>
 
+<div class="relative">
+  <Input type="search" class="mb-4 w-1/3 pl-8" placeholder="Cerca un episodi" />
+  <div class="absolute left-0 top-1/2 -translate-y-1/2 pl-2">
+    <Search class="w-4 h-4" />
+  </div>
+</div>
 <div class="overflow-hidden rounded-md border">
   <Table.Root>
     <Table.Header>
