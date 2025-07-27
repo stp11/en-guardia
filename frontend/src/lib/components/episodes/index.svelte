@@ -1,25 +1,36 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { writable } from "svelte/store";
 
   import { Search } from "@lucide/svelte";
+  import { createQuery } from "@tanstack/svelte-query";
   import { getCoreRowModel } from "@tanstack/table-core";
-  import { type Episode, getEpisodesApiEpisodesGet } from "client";
+  import { getEpisodesApiEpisodesGet } from "client";
 
   import { FlexRender, createSvelteTable } from "lib/components/ui/data-table/index.js";
   import Input from "lib/components/ui/input.svelte";
   import * as Table from "lib/components/ui/table/index.js";
+  import { debounce } from "lib/hooks/use-debounce";
 
   import { columns } from "./columns";
 
-  let episodes: Episode[] = [];
+  const searchQuery = writable("");
 
-  onMount(async () => {
-    const { data } = await getEpisodesApiEpisodesGet();
-    episodes = data?.items ?? [];
+  const debouncedSearch = debounce((value: string) => {
+    searchQuery.set(value as string);
+  }, 300);
+
+  $: query = createQuery({
+    queryKey: ["episodes", $searchQuery],
+    queryFn: async () =>
+      await getEpisodesApiEpisodesGet({
+        query: {
+          search: $searchQuery,
+        },
+      }),
   });
 
   $: table = createSvelteTable({
-    data: episodes,
+    data: $query?.data?.data?.items ?? [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     defaultColumn: {
@@ -30,7 +41,12 @@
 </script>
 
 <div class="relative">
-  <Input type="search" class="mb-4 w-1/3 pl-8" placeholder="Cerca un episodi" />
+  <Input
+    type="search"
+    class="mb-4 w-1/3 pl-8"
+    placeholder="Cerca un episodi"
+    oninput={(e) => debouncedSearch(e.currentTarget.value)}
+  />
   <div class="absolute left-0 top-1/2 -translate-y-1/2 pl-2">
     <Search class="w-4 h-4" />
   </div>
