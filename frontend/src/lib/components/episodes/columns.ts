@@ -13,10 +13,10 @@ export const columns: ColumnDef<Episode>[] = [
   {
     accessorKey: "description",
     header: "Descripció",
-    size: 1024,
+    size: 768,
     cell: ({ row }) => {
       const descriptionCellSnippet = createRawSnippet(() => ({
-        render: () => `<div class="line-clamp-2">${row.original.description}</div>`,
+        render: () => `<div class="line-clamp-2 pr-8">${row.original.description}</div>`,
       }));
       return renderSnippet(descriptionCellSnippet, row.original.description);
     },

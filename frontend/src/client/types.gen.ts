@@ -85,6 +85,10 @@ export type GetEpisodesApiEpisodesGetData = {
     path?: never;
     query?: {
         /**
+         * Search
+         */
+        search?: string;
+        /**
          * Page
          * Page number
          */
