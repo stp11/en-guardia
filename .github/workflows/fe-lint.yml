@@ -25,4 +25,4 @@ jobs:
           bun-version: latest
       - run: bun install --frozen-lockfile
       - run: bun run lint
-      - run: bun run prettier --check
+      - run: bun run prettier:check
