@@ -2,7 +2,7 @@
   "name": "frontend",
   "version": "0.0.0",
   "devDependencies": {
-    "@lucide/svelte": "^0.525.0",
+    "@lucide/svelte": "^0.515.0",
     "@sveltejs/vite-plugin-svelte": "^6.0.0",
     "@tanstack/table-core": "^8.21.3",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
