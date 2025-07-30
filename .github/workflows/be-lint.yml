@@ -23,4 +23,6 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install pre-commit
-      - run: pre-commit run --all-files
+      - run: pre-commit run flake8 --all-files
+      - run: pre-commit run black --all-files
+      - run: pre-commit run isort --all-files

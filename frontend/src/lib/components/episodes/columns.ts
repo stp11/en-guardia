@@ -10,11 +10,13 @@ export const columns: ColumnDef<Episode>[] = [
   {
     accessorKey: "title",
     header: "Títol",
+    enableSorting: false,
   },
   {
     accessorKey: "description",
     header: "Descripció",
     size: 768,
+    enableSorting: false,
     cell: ({ row }) => {
       const descriptionCellSnippet = createRawSnippet(() => ({
         render: () => `<div class="line-clamp-2 pr-8">${row.original.description}</div>`,
@@ -26,6 +28,7 @@ export const columns: ColumnDef<Episode>[] = [
     accessorKey: "published_at",
     header: "Data de publicació",
     size: 150,
+    enableSorting: true,
     cell: ({ row }) => {
       if (!row.original.published_at) return null;
       const date = new Intl.DateTimeFormat("ca", {
