@@ -1,22 +1,34 @@
 <script lang="ts">
-  import { writable } from "svelte/store";
+  import { derived, writable } from "svelte/store";
 
   import { ChevronLeft, ChevronRight, Search } from "@lucide/svelte";
   import { createQuery } from "@tanstack/svelte-query";
-  import { getCoreRowModel } from "@tanstack/table-core";
+  import {
+    type SortingState,
+    type Updater,
+    getCoreRowModel,
+    getSortedRowModel,
+  } from "@tanstack/table-core";
 
   import { getEpisodesApiEpisodesGet } from "client";
 
   import { Button } from "lib/components/ui/button";
-  import { FlexRender, createSvelteTable } from "lib/components/ui/data-table/index.js";
+  import { FlexRender, createSvelteTable } from "lib/components/ui/data-table";
   import Input from "lib/components/ui/input.svelte";
-  import * as Table from "lib/components/ui/table/index.js";
+  import * as Table from "lib/components/ui/table";
   import { debounce } from "lib/hooks/use-debounce";
 
+  import DataTableHeader from "../ui/data-table/data-table-header.svelte";
   import { columns } from "./columns";
 
   const searchQuery = writable("");
   const page = writable(1);
+  const sorting = writable<SortingState>([{ id: "published_at", desc: true }]);
+  const order = derived(sorting, ($sorting) => {
+    const column = $sorting.find((v) => v.id === "published_at");
+    if (!column) return "desc";
+    return column.desc ? "desc" : "asc";
+  });
 
   const pageSize = 25;
 
@@ -26,13 +38,14 @@
   }, 300);
 
   $: query = createQuery({
-    queryKey: ["episodes", $searchQuery, $page],
+    queryKey: ["episodes", $searchQuery, $page, $order],
     queryFn: async () =>
       await getEpisodesApiEpisodesGet({
         query: {
           search: $searchQuery,
           page: $page,
           size: pageSize,
+          order: $order,
         },
       }),
   });
@@ -41,19 +54,19 @@
     data: $query?.data?.data?.items ?? [],
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    manualSorting: true,
+    onSortingChange: handleSortingChange,
+    state: { sorting: $sorting },
     defaultColumn: {
       size: 300,
       minSize: 150,
     },
   });
 
-  const handleNextPage = () => {
-    page.set($page + 1);
-  };
-
-  const handlePreviousPage = () => {
-    page.set($page - 1);
-  };
+  const handleNextPage = () => page.set($page + 1);
+  const handlePreviousPage = () => page.set($page - 1);
+  const handleSortingChange = (state: Updater<SortingState>) => sorting.set(state as SortingState);
 </script>
 
 <div class="2xl:max-w-screen-2xl 2xl:mx-auto">
@@ -70,14 +83,14 @@
       </div>
     </div>
     <div class="flex items-center gap-2">
-      <Button onclick={handlePreviousPage} disabled={$page === 1} variant="outline" size="sm">
+      <Button onclick={handlePreviousPage} disabled={$page === 1} variant="ghost" size="sm">
         <ChevronLeft class="w-4 h-4" />
         Anterior
       </Button>
       <Button
         onclick={handleNextPage}
         disabled={$page === $query?.data?.data?.pages}
-        variant="outline"
+        variant="ghost"
         size="sm"
       >
         Següent
@@ -92,12 +105,7 @@
           <Table.Row>
             {#each headerGroup.headers as header (header.id)}
               <Table.Head colspan={header.colSpan} style={`width: ${header.getSize()}px`}>
-                {#if !header.isPlaceholder}
-                  <FlexRender
-                    content={header.column.columnDef.header}
-                    context={header.getContext()}
-                  />
-                {/if}
+                <DataTableHeader {table} {header} />
               </Table.Head>
             {/each}
           </Table.Row>

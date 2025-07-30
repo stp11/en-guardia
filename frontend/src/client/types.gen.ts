@@ -89,6 +89,10 @@ export type GetEpisodesApiEpisodesGetData = {
          */
         search?: string;
         /**
+         * Order
+         */
+        order?: string;
+        /**
          * Page
          * Page number
          */
