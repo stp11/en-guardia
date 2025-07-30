@@ -21,5 +21,11 @@ repos:
     rev: 7.0.0
     hooks:
       - id: flake8
-
-exclude: "^frontend/"
+  - repo: local
+    hooks:
+      - id: linter
+        name: linter
+        entry: make lint-frontend
+        language: system
+        pass_filenames: false
+exclude: "^frontend/src/client"
