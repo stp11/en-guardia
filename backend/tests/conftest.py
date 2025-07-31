@@ -5,8 +5,6 @@ from main import app
 from sqlalchemy.pool import StaticPool
 from sqlmodel import Session, SQLModel, create_engine
 
-# TODO: Perhaps use a mysql database for testing.
-# For now, in-memory SQLite does the job.
 test_engine = create_engine(
     "sqlite:///:memory:",
     connect_args={"check_same_thread": False},

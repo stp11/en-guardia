@@ -1,27 +1,22 @@
 from database import get_session
+from dependencies import get_episodes_service
 from fastapi import APIRouter, Depends
 from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import paginate
 from models import Episode
-from sqlmodel import Session, select
+from services import EpisodesService
+from sqlmodel import Session
 
 router = APIRouter()
 
 
 @router.get("/episodes", tags=["episodis"], response_model=Page[Episode])
 def get_episodes(
+    service: EpisodesService = Depends(get_episodes_service),
+    # We still need the session for the pagination function
     session: Session = Depends(get_session),
     search: str = "",
     order: str = "desc",
 ):
-    query = select(Episode)
-    if search.strip():
-        search_term = f"%{search.strip()}%"
-        query = query.filter(Episode.title.like(search_term))
-
-    if order == "desc":
-        query = query.order_by(Episode.published_at.desc())
-    else:
-        query = query.order_by(Episode.published_at.asc())
-
+    query = service.get_episodes_query(search=search, order=order)
     return paginate(session, query)
