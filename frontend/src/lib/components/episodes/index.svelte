@@ -5,6 +5,7 @@
   import { createQuery } from "@tanstack/svelte-query";
   import {
     type PaginationState,
+    type RowSelectionState,
     type SortingState,
     type Updater,
     getCoreRowModel,
@@ -25,6 +26,7 @@
   const searchQuery = writable("");
   const page = writable(1);
   const sorting = writable<SortingState>([]);
+  const rowSelection = writable<RowSelectionState>({});
   const order = derived(sorting, ($sorting) => {
     const column = $sorting.find((v) => v.id === "published_at");
     if (!column) return "desc";
@@ -58,10 +60,16 @@
     getSortedRowModel: getSortedRowModel(),
     manualSorting: true,
     manualPagination: true,
+    enableRowSelection: true,
     onSortingChange: handleSortingChange,
     onPaginationChange: handlePaginationChange,
+    onRowSelectionChange: handleRowSelectionChange,
     pageCount: $query?.data?.data?.pages ?? 0,
-    state: { sorting: $sorting, pagination: { pageIndex: $page - 1, pageSize } },
+    state: {
+      sorting: $sorting,
+      pagination: { pageIndex: $page - 1, pageSize },
+      rowSelection: $rowSelection,
+    },
     defaultColumn: {
       size: 300,
       minSize: 150,
@@ -77,6 +85,12 @@
   const handleSortingChange = (state: Updater<SortingState>) => {
     const newSorting = typeof state === "function" ? state(table.getState().sorting) : state;
     sorting.set(newSorting as SortingState);
+  };
+
+  const handleRowSelectionChange = (state: Updater<RowSelectionState>) => {
+    const newRowSelection =
+      typeof state === "function" ? state(table.getState().rowSelection) : state;
+    rowSelection.set(newRowSelection as RowSelectionState);
   };
 </script>
 
@@ -110,7 +124,11 @@
       </Table.Header>
       <Table.Body>
         {#each table.getRowModel().rows as row (row.id)}
-          <Table.Row data-state={row.getIsSelected() && "selected"}>
+          <Table.Row
+            data-state={row.getIsSelected() && "selected"}
+            onclick={() =>
+              handleRowSelectionChange((prev) => ({ ...prev, [row.id]: !row.getIsSelected() }))}
+          >
             {#each row.getVisibleCells() as cell (cell.id)}
               <Table.Cell style={`width: ${cell.column.getSize()}px`}>
                 <FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />

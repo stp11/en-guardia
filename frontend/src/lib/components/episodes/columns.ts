@@ -11,6 +11,12 @@ export const columns: ColumnDef<Episode>[] = [
     accessorKey: "title",
     header: "Títol",
     enableSorting: false,
+    cell: ({ row }) => {
+      const titleCellSnippet = createRawSnippet(() => ({
+        render: () => `<div class="font-normal">${row.original.title}</div>`,
+      }));
+      return renderSnippet(titleCellSnippet, row.original.title);
+    },
   },
   {
     accessorKey: "description",
@@ -19,7 +25,8 @@ export const columns: ColumnDef<Episode>[] = [
     enableSorting: false,
     cell: ({ row }) => {
       const descriptionCellSnippet = createRawSnippet(() => ({
-        render: () => `<div class="line-clamp-2 pr-8">${row.original.description}</div>`,
+        render: () =>
+          `<div class="pr-8 ${!row.getIsSelected() && "line-clamp-2"}">${row.original.description}</div>`,
       }));
       return renderSnippet(descriptionCellSnippet, row.original.description);
     },
