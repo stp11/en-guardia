@@ -1,9 +1,10 @@
 <script lang="ts">
   import { derived, writable } from "svelte/store";
 
-  import { ChevronLeft, ChevronRight, Search } from "@lucide/svelte";
+  import { Search } from "@lucide/svelte";
   import { createQuery } from "@tanstack/svelte-query";
   import {
+    type PaginationState,
     type SortingState,
     type Updater,
     getCoreRowModel,
@@ -12,13 +13,13 @@
 
   import { getEpisodesApiEpisodesGet } from "client";
 
-  import { Button } from "lib/components/ui/button";
   import { FlexRender, createSvelteTable } from "lib/components/ui/data-table";
   import Input from "lib/components/ui/input.svelte";
   import * as Table from "lib/components/ui/table";
   import { debounce } from "lib/hooks/use-debounce";
 
   import DataTableHeader from "../ui/data-table/data-table-header.svelte";
+  import DataTablePagination from "../ui/data-table/data-table-pagination.svelte";
   import { columns } from "./columns";
 
   const searchQuery = writable("");
@@ -56,17 +57,27 @@
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     manualSorting: true,
+    manualPagination: true,
     onSortingChange: handleSortingChange,
-    state: { sorting: $sorting },
+    onPaginationChange: handlePaginationChange,
+    pageCount: $query?.data?.data?.pages ?? 0,
+    state: { sorting: $sorting, pagination: { pageIndex: $page - 1, pageSize } },
     defaultColumn: {
       size: 300,
       minSize: 150,
     },
   });
 
-  const handleNextPage = () => page.set($page + 1);
-  const handlePreviousPage = () => page.set($page - 1);
-  const handleSortingChange = (state: Updater<SortingState>) => sorting.set(state as SortingState);
+  const handlePaginationChange = (pagination: Updater<PaginationState>) => {
+    const newPagination =
+      typeof pagination === "function" ? pagination(table.getState().pagination) : pagination;
+    page.set(newPagination.pageIndex + 1);
+  };
+
+  const handleSortingChange = (state: Updater<SortingState>) => {
+    const newSorting = typeof state === "function" ? state(table.getState().sorting) : state;
+    sorting.set(newSorting as SortingState);
+  };
 </script>
 
 <div class="2xl:max-w-screen-2xl 2xl:mx-auto">
@@ -82,21 +93,7 @@
         <Search class="w-4 h-4" />
       </div>
     </div>
-    <div class="flex items-center gap-2">
-      <Button onclick={handlePreviousPage} disabled={$page === 1} variant="ghost" size="sm">
-        <ChevronLeft class="w-4 h-4" />
-        Anterior
-      </Button>
-      <Button
-        onclick={handleNextPage}
-        disabled={$page === $query?.data?.data?.pages}
-        variant="ghost"
-        size="sm"
-      >
-        Següent
-        <ChevronRight class="w-4 h-4" />
-      </Button>
-    </div>
+    <DataTablePagination {table} />
   </div>
   <div class="overflow-hidden rounded-md border">
     <Table.Root>
