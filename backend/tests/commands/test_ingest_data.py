@@ -2,7 +2,7 @@ import re
 from unittest.mock import Mock
 
 from commands.ingest_data import ingest_data
-from models import Episode
+from models import Episode, IngestionPosition
 from sqlmodel import select
 
 
@@ -102,6 +102,9 @@ class TestIngestData:
         assert {e.id for e in episodes} == {item["id"] for item in self.items}
 
     def test_ingest_paginated_data(self, db_session, monkeypatch):
+        """
+        Tests that ingestion continues over multiple pages.
+        """
         mock_function = create_paginated_mock(
             {1: self.items[0:1], 2: self.items[1:2], 3: self.items[2:3]}
         )
@@ -118,3 +121,47 @@ class TestIngestData:
         episodes = db_session.exec(select(Episode)).all()
         assert mock_get.call_count == 3
         assert len(episodes) == 3
+
+    def test_ingest_incremental_update(self, db_session, monkeypatch):
+        """
+        Tests that ingestion stops when it finds an already existing episode.
+        """
+        position = IngestionPosition(id=1, last_episode_id=2)
+        db_session.add(position)
+        db_session.commit()
+
+        mock_api_items = [
+            {
+                "id": 3,
+                "titol": "New Episode 3",
+                "data_publicacio": "03/01/2020 00:00:00",
+            },
+            {
+                "id": 2,
+                "titol": "Existing Episode 2",
+                "data_publicacio": "02/01/2020 00:00:00",
+            },
+            {
+                "id": 1,
+                "titol": "Old Episode 1",
+                "data_publicacio": "01/01/2020 00:00:00",
+            },
+        ]
+        monkeypatch.setattr(
+            "commands.ingest_data.requests.get",
+            mock_api_response(mock_api_items, self.pagination),
+        )
+        monkeypatch.setattr(
+            "commands.ingest_data.get_session", lambda: iter([db_session])
+        )
+
+        ingest_data()
+
+        # only one new episode (ID=3) should have been added.
+        episodes = db_session.exec(select(Episode)).all()
+        assert len(episodes) == 1
+        assert episodes[0].id == 3
+
+        # IngestionPosition should be updated to the newest ID
+        updated_position = db_session.get(IngestionPosition, 1)
+        assert updated_position.last_episode_id == 3
