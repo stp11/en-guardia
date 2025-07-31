@@ -38,7 +38,7 @@ export const columns: ColumnDef<Episode>[] = [
       }).format(new Date(row.original.published_at));
 
       const publishedAtCellSnippet = createRawSnippet(() => ({
-        render: () => `<div>${date}</div>`,
+        render: () => `<div class="pl-2.5">${date}</div>`,
       }));
       return renderSnippet(publishedAtCellSnippet, date);
     },
