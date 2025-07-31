@@ -10,7 +10,7 @@
 </script>
 
 <div class="flex items-center justify-end gap-2">
-  <div class="flex items-center gap-2">
+  <div class="flex items-center gap-3 text-sm">
     Pàgina {currentPage} de {pageCount}
     <div class="flex items-center gap-1 [&>button]:size-8">
       <Button

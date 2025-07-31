@@ -80,7 +80,7 @@
   };
 </script>
 
-<div class="2xl:max-w-screen-2xl 2xl:mx-auto">
+<div class="xl:max-w-screen-xl 2xl:mx-auto">
   <div class="flex justify-between items-center mb-4">
     <div class="relative">
       <Input
@@ -95,7 +95,7 @@
     </div>
     <DataTablePagination {table} />
   </div>
-  <div class="overflow-hidden rounded-md border">
+  <div class="overflow-hidden rounded-md border shadow-xs">
     <Table.Root>
       <Table.Header>
         {#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
