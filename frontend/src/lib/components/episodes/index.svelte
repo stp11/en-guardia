@@ -23,7 +23,7 @@
 
   const searchQuery = writable("");
   const page = writable(1);
-  const sorting = writable<SortingState>([{ id: "published_at", desc: true }]);
+  const sorting = writable<SortingState>([]);
   const order = derived(sorting, ($sorting) => {
     const column = $sorting.find((v) => v.id === "published_at");
     if (!column) return "desc";
@@ -39,13 +39,13 @@
 
   $: query = createQuery({
     queryKey: ["episodes", $searchQuery, $page, $order],
-    queryFn: async () =>
-      await getEpisodesApiEpisodesGet({
+    queryFn: () =>
+      getEpisodesApiEpisodesGet({
         query: {
           search: $searchQuery,
           page: $page,
           size: pageSize,
-          order: $order,
+          order: $order ? $order : undefined,
         },
       }),
   });

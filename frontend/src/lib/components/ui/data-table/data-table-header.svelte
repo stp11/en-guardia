@@ -1,5 +1,5 @@
 <script lang="ts" generics="TData, TValue">
-  import { ArrowDown, ArrowUp, ChevronsUpDown } from "@lucide/svelte";
+  import { ArrowDown, ArrowUp } from "@lucide/svelte";
   import type { Header, Table } from "@tanstack/table-core";
 
   import { Button } from "lib/components/ui/button";
@@ -13,6 +13,7 @@
   import FlexRender from "./flex-render.svelte";
 
   let { table, header }: { table: Table<TData>; header: Header<TData, TValue> } = $props();
+  const isSorted = $derived(table.getState().sorting.find((s) => s.id === header.column.id));
 </script>
 
 <div>
@@ -21,7 +22,13 @@
       <DropdownMenuTrigger>
         <Button variant="ghost" size="sm" class="flex items-center gap-1">
           <FlexRender content={header.column.columnDef.header} context={header.getContext()} />
-          <ChevronsUpDown class="size-4" />
+          {#if isSorted}
+            {#if isSorted.desc}
+              <ArrowDown />
+            {:else}
+              <ArrowUp />
+            {/if}
+          {/if}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
