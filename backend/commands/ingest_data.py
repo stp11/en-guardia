@@ -1,34 +1,13 @@
 import json
-from datetime import datetime
 
 import requests
 from database import get_session
 from logger import logger
-from models import Episode, IngestionPosition
+from models import IngestionPosition
 
 BASE_URL = (
     "https://api.3cat.cat/audios?programaradio_id=944&ordre=-data_publicacio"
 )
-
-
-def parse_date(date_str):
-    # API format: "09/09/2001 00:01:00"
-    return datetime.strptime(date_str, "%d/%m/%Y %H:%M:%S")
-
-
-def create_episode_from_data(data: dict) -> Episode:
-    """Maps API data dictionary to an Episode object."""
-    return Episode(
-        id=data["id"],
-        title=data.get("titol"),
-        slug=data.get("nom_friendly"),
-        description=data.get("entradeta"),
-        published_at=(
-            parse_date(data["data_publicacio"])
-            if data.get("data_publicacio")
-            else None
-        ),
-    )
 
 
 def ingest_data():
@@ -45,6 +24,12 @@ def ingest_data():
     logger.info("Starting episode ingestion task.")
 
     with next(get_session()) as session:
+        from repositories import EpisodesRepository
+        from services import EpisodesService
+
+        episodes_repository = EpisodesRepository(session)
+        episodes_service = EpisodesService(episodes_repository)
+
         position = session.get(IngestionPosition, 1) or IngestionPosition(id=1)
 
         known_last_id = position.last_episode_id
@@ -84,11 +69,13 @@ def ingest_data():
                     stop_processing = True
                     break
 
-                episodes_to_add.append(create_episode_from_data(ep_data))
+                episodes_to_add.append(
+                    episodes_service.create_episode_from_api_data(ep_data)
+                )
 
             if episodes_to_add:
                 for episode in episodes_to_add:
-                    session.merge(episode)
+                    episodes_repository.save_episode(episode)
                 total_episodes_ingested += len(episodes_to_add)
 
             if stop_processing:

@@ -10,6 +10,10 @@ class IEpisodesRepository(ABC):
     def get_episodes_query(self, search: str | None, order: str) -> Select:
         pass
 
+    @abstractmethod
+    def save_episode(self, episode: Episode) -> Episode:
+        pass
+
 
 class EpisodesRepository(IEpisodesRepository):
     def __init__(self, session: Session):
@@ -28,3 +32,6 @@ class EpisodesRepository(IEpisodesRepository):
             query = query.order_by(Episode.published_at.asc())
 
         return query
+
+    def save_episode(self, episode: Episode) -> Episode:
+        return self.db_session.merge(episode)
