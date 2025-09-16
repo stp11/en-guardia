@@ -7,3 +7,5 @@ pymysql==1.1.1
 cryptography==45.0.5
 alembic==1.11.1
 requests==2.32.4
+openai==1.107.2
+python-slugify==8.0.4
