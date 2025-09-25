@@ -2,6 +2,8 @@ from datetime import datetime, timezone
 
 from sqlmodel import TEXT, Column, DateTime, Field, Relationship, SQLModel
 
+# from enum import Enum
+
 
 class EpisodeCategory(SQLModel, table=True):
     episode_id: int | None = Field(
@@ -12,14 +14,40 @@ class EpisodeCategory(SQLModel, table=True):
     )
 
 
+class CategoryBase(SQLModel):
+    id: int
+    slug: str
+    name: str
+
+
+# class CategoryType(str, Enum):
+#     TOPIC = "topic"
+#     LOCATION = "location"
+#     CHARACTER = "character"
+#     TIME_PERIOD = "time_period"
+
+
 class Category(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     slug: str = Field(unique=True, index=True)
     name: str = Field(index=True)
+    # type: CategoryType | None = Field(index=True)
 
     episodes: list["Episode"] = Relationship(
         back_populates="categories", link_model=EpisodeCategory
     )
+
+
+class EpisodeBase(SQLModel):
+    id: int
+    title: str
+    slug: str | None
+    description: str | None
+    published_at: datetime | None
+
+
+class EpisodeWithCategories(EpisodeBase):
+    categories: list[CategoryBase] = []
 
 
 class Episode(SQLModel, table=True):
