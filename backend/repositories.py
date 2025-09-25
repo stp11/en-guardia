@@ -63,7 +63,7 @@ class EpisodesRepository(IEpisodesRepository):
 
         if search and search.strip():
             search_term = f"%{search.strip()}%"
-            query = query.where(Episode.title.like(search_term))
+            query = query.where(Episode.title.ilike(search_term))
 
         if order == "desc":
             query = query.order_by(Episode.published_at.desc())

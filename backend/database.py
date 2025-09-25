@@ -3,17 +3,17 @@ import os
 from sqlalchemy.orm import sessionmaker
 from sqlmodel import Session, create_engine
 
-MYSQL_USER = os.environ.get("MYSQL_USER")
-MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD")
-MYSQL_HOST = os.environ.get("MYSQL_HOST")
-MYSQL_PORT = os.environ.get("MYSQL_PORT", "3306")
-MYSQL_DATABASE = os.environ.get("MYSQL_DATABASE")
+POSTGRES_USER = os.environ.get("POSTGRES_USER")
+POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
+POSTGRES_HOST = os.environ.get("POSTGRES_HOST")
+POSTGRES_PORT = os.environ.get("POSTGRES_PORT", "5432")
+POSTGRES_DB = os.environ.get("POSTGRES_DB")
 
-mysql_url = f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}"  # noqa: E501
+DATABASE_URL = f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"  # noqa: E501
 
 is_debug = os.environ.get("BUILD_ENVIRONMENT") == "local"
 
-engine = create_engine(mysql_url, echo=is_debug, hide_parameters=True)
+engine = create_engine(DATABASE_URL, echo=is_debug, hide_parameters=True)
 
 SessionLocal = sessionmaker(autocommit=False, bind=engine, class_=Session)
 

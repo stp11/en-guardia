@@ -1,5 +1,5 @@
 volumes:
-  mysql_data:
+  postgres_data:
 
 services:
   backend:
@@ -13,20 +13,20 @@ services:
     volumes:
       - ./backend:/app
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
 
-  mysql:
-    image: mysql:8.0
+  postgres:
+    image: postgres:16-alpine
     restart: always
     ports:
-      - "3306:3306"
+      - "5432:5432"
     env_file:
       - ./backend/.env
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD-SHELL", "pg_isready"]
       interval: 5s
       timeout: 5s
       retries: 10

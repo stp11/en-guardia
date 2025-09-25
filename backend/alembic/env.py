@@ -1,7 +1,7 @@
 from logging.config import fileConfig
 
 from alembic import context
-from database import mysql_url
+from database import DATABASE_URL
 from models import Episode, IngestionPosition, SQLModel  # noqa: F401
 from sqlalchemy import engine_from_config, pool
 
@@ -9,7 +9,7 @@ from sqlalchemy import engine_from_config, pool
 # access to the values within the .ini file in use.
 config = context.config
 
-config.set_main_option("sqlalchemy.url", mysql_url)
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
