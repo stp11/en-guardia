@@ -6,3 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export type WithElementRef<T, U extends HTMLElement = HTMLElement> = T & { ref?: U | null };
+
+export const capitalize = (str: string) => {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};

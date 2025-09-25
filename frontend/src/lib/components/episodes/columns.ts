@@ -2,11 +2,13 @@ import { createRawSnippet } from "svelte";
 
 import type { ColumnDef } from "@tanstack/table-core";
 
-import type { Episode } from "client";
+import type { EpisodeWithCategories } from "client";
+
+import { capitalize } from "lib/utils.js";
 
 import { renderSnippet } from "../ui/data-table/render-helpers";
 
-export const columns: ColumnDef<Episode>[] = [
+export const columns: ColumnDef<EpisodeWithCategories>[] = [
   {
     accessorKey: "title",
     header: "Títol",
@@ -26,9 +28,24 @@ export const columns: ColumnDef<Episode>[] = [
     cell: ({ row }) => {
       const descriptionCellSnippet = createRawSnippet(() => ({
         render: () =>
-          `<div class="pr-8 ${!row.getIsSelected() && "line-clamp-2"}">${row.original.description ?? "No disponible"}</div>`,
+          `<div class="pr-8 ${!row.getIsSelected() && "line-clamp-2"}">${row.original.description ?? ""}</div>`,
       }));
       return renderSnippet(descriptionCellSnippet, row.original.description);
+    },
+  },
+  {
+    accessorKey: "categories",
+    header: "Categories",
+    size: 250,
+    enableSorting: false,
+    cell: ({ row }) => {
+      const categoriesCellSnippet = createRawSnippet(() => ({
+        render: () =>
+          `<div class="flex flex-wrap gap-2">
+          ${row.original.categories?.map((category) => `<span class="border text-xs rounded-md px-2 py-0.5">${capitalize(category.name)}</span>`).join("")}
+        </div>`,
+      }));
+      return renderSnippet(categoriesCellSnippet, row.original.categories);
     },
   },
   {
