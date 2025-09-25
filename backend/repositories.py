@@ -3,10 +3,15 @@ from abc import ABC, abstractmethod
 from models import Category, Episode, EpisodeCategory
 from slugify import slugify
 from sqlalchemy import Select
+from sqlalchemy.orm import selectinload
 from sqlmodel import Session, select
 
 
 class ICategoriesRepository(ABC):
+    @abstractmethod
+    def get_all_categories(self) -> list[Category]:
+        pass
+
     @abstractmethod
     def get_or_create_category(self, name: str) -> Category:
         pass
@@ -15,6 +20,9 @@ class ICategoriesRepository(ABC):
 class CategoriesRepository(ICategoriesRepository):
     def __init__(self, session: Session):
         self.db_session = session
+
+    def get_all_categories(self) -> list[Category]:
+        return self.db_session.exec(select(Category)).all()
 
     def get_or_create_category(self, name: str) -> Category:
         slug = slugify(name)
@@ -51,7 +59,7 @@ class EpisodesRepository(IEpisodesRepository):
         self.db_session = session
 
     def get_episodes_query(self, search: str | None, order: str) -> Select:
-        query = select(Episode)
+        query = select(Episode).options(selectinload(Episode.categories))
 
         if search and search.strip():
             search_term = f"%{search.strip()}%"

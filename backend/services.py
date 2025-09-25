@@ -41,9 +41,6 @@ class EpisodesService:
         return datetime.strptime(date_str, "%d/%m/%Y %H:%M:%S")
 
 
-UNCLASSIFIED = "Unclassified"
-
-
 class ClassificationService:
     def __init__(
         self,
@@ -55,9 +52,15 @@ class ClassificationService:
         self.episodes_repository = episodes_repository
         self.categories_repository = categories_repository
 
-    def classify_episode(self, episode: Episode) -> dict | str:
+    def classify_episode(self, episode: Episode) -> dict | None:
         """Classify a single episode using OpenAI."""
-        prompt = classification_prompt(episode.title, episode.description)
+        existing_categories = self.categories_repository.get_all_categories()
+        existing_categories_list = [
+            category.name for category in existing_categories
+        ]
+        prompt = classification_prompt(episode, existing_categories_list)
+
+        logger.info(f"Prompt: {prompt}")
 
         response = self.openai_client.chat.completions.create(
             model="gpt-4o-mini",
@@ -74,34 +77,27 @@ class ClassificationService:
             logger.error(
                 f"Failed to fetch classification from LLM for episode {episode.id}: {e}"  # noqa: E501
             )
-            return UNCLASSIFIED
+            return None
 
     def save_categories_to_episode(
-        self, episode: Episode, classification: dict | str
+        self, episode: Episode, classification: dict | None
     ) -> None:
         """Save classified categories to the database."""
         all_categories = []
 
+        if classification is None:
+            logger.info(f"No classification found for episode {episode.id}")
+            return
+
         try:
-            if isinstance(classification, str):
-                if classification == UNCLASSIFIED:
+            for items in classification.values():
+                logger.info(f"Saving categories: {items}")
+                for item in items:
                     category = (
-                        self.categories_repository.get_or_create_category(
-                            UNCLASSIFIED
-                        )
+                        self.categories_repository.get_or_create_category(item)
                     )
+                    logger.info(f"Saved category: {category}")
                     all_categories.append(category)
-            else:
-                for items in classification.values():
-                    logger.info(f"Saving categories: {items}")
-                    for item in items:
-                        category = (
-                            self.categories_repository.get_or_create_category(
-                                item
-                            )
-                        )
-                        logger.info(f"Saved category: {category}")
-                        all_categories.append(category)
         except Exception as e:
             logger.error(f"Failed to save categories: {e}")
             return

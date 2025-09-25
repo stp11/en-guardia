@@ -29,9 +29,10 @@ class TestClassificationService:
         mock_response = MagicMock()
         mock_response.choices[0].message.content = json.dumps(
             {
-                "personatges_rellevants": ["Jaume I"],
-                "llocs_rellevants": ["Mallorca"],
-                "epoca": ["medieval"],
+                "temàtica": ["temàtica 1", "temàtica 2"],
+                "personatges": ["Jaume I"],
+                "localització": ["Mallorca"],
+                "època": ["medieval"],
             }
         )
         self.mock_openai_client.chat.completions.create.return_value = (
@@ -41,26 +42,14 @@ class TestClassificationService:
         result = self.service.classify_episode(episode)
 
         assert isinstance(result, dict)
-        assert result["personatges_rellevants"] == ["Jaume I"]
-        assert result["epoca"] == ["medieval"]
-        assert result["llocs_rellevants"] == ["Mallorca"]
+        assert result["temàtica"] == ["temàtica 1", "temàtica 2"]
+        assert result["personatges"] == ["Jaume I"]
+        assert result["època"] == ["medieval"]
+        assert result["localització"] == ["Mallorca"]
 
         self.mock_openai_client.chat.completions.create.assert_called_once()
 
-    def test_classify_episode_empty_description_returns_unclassified(self):
-        episode = Episode(id=1, title="Test Episode", description=None)
-        result = self.service.classify_episode(episode)
-        assert result == "Unclassified"
-
-        episode = Episode(id=1, title="Test Episode", description="")
-        result = self.service.classify_episode(episode)
-        assert result == "Unclassified"
-
-        episode = Episode(id=1, title="Test Episode", description="En guàrdia")
-        result = self.service.classify_episode(episode)
-        assert result == "Unclassified"
-
-    def test_classify_episode_json_decode_error_returns_unclassified(self):
+    def test_classify_episode_json_decode_error_returns_none(self):
         episode = Episode(
             id=1,
             title="Test Episode",
@@ -74,19 +63,25 @@ class TestClassificationService:
         )
 
         result = self.service.classify_episode(episode)
-        assert result == "Unclassified"
+        assert result is None
 
     def test_save_categories_to_episode_with_dict_classification(self):
         episode = Episode(
             id=1, title="Conquesta de Mallorca i València per Jaume I"
         )
         classification = {
-            "personatges_rellevants": ["Jaume I"],
-            "epoca": ["medieval"],
-            "llocs_rellevants": ["Mallorca", "València"],
+            "temàtica": ["Conquesta de Mallorca i València"],
+            "personatges": ["Jaume I"],
+            "època": ["medieval"],
+            "localització": ["Mallorca", "València"],
         }
 
         mock_categories = [
+            Category(
+                id=1,
+                slug="Conquesta de Mallorca i València",
+                name="Conquesta de Mallorca i València",
+            ),
             Category(id=1, slug="Jaume I", name="Jaume I"),
             Category(id=2, slug="medieval", name="medieval"),
             Category(id=3, slug="Mallorca", name="Mallorca"),
@@ -98,32 +93,12 @@ class TestClassificationService:
 
         self.service.save_categories_to_episode(episode, classification)
 
-        assert self.mock_categories_repo.get_or_create_category.call_count == 4
-        assert self.mock_episodes_repo.link_episode_to_category.call_count == 4
+        assert self.mock_categories_repo.get_or_create_category.call_count == 5
+        assert self.mock_episodes_repo.link_episode_to_category.call_count == 5
         for i, category in enumerate(mock_categories):
             self.mock_episodes_repo.link_episode_to_category.assert_any_call(
                 1, category.id
             )
-
-    def test_save_categories_to_episode_with_unclassified_string(self):
-        episode = Episode(id=1, title="Test Episode")
-        classification = "Unclassified"
-
-        mock_category = Category(
-            id=1, slug="unclassified", name="Unclassified"
-        )
-        self.mock_categories_repo.get_or_create_category.return_value = (
-            mock_category
-        )
-
-        self.service.save_categories_to_episode(episode, classification)
-
-        self.mock_categories_repo.get_or_create_category.assert_called_once_with(  # noqa: E501
-            "Unclassified"
-        )
-        self.mock_episodes_repo.link_episode_to_category.assert_called_once_with(  # noqa: E501
-            1, 1
-        )
 
     def test_save_categories_to_episode_empty_classification(self):
         episode = Episode(id=1, title="Test Episode")

@@ -41,6 +41,7 @@ def classify_episodes(batch_size: int = 50, max_total: int = None):
                 select(Episode)
                 .where(Episode.description.isnot(None))
                 .where(~Episode.categories.any())
+                .order_by(Episode.published_at.desc())
                 .limit(current_batch_size)
             ).all()
 

@@ -3,14 +3,16 @@ from dependencies import get_episodes_service
 from fastapi import APIRouter, Depends
 from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import paginate
-from models import Episode
+from models import EpisodeWithCategories
 from services import EpisodesService
 from sqlmodel import Session
 
 router = APIRouter()
 
 
-@router.get("/episodes", tags=["episodis"], response_model=Page[Episode])
+@router.get(
+    "/episodes", tags=["episodis"], response_model=Page[EpisodeWithCategories]
+)
 def get_episodes(
     service: EpisodesService = Depends(get_episodes_service),
     # We still need the session for the pagination function
