@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from models import Category, Episode, EpisodeCategory
+from models import Category, CategoryType, Episode, EpisodeCategory
 from slugify import slugify
 from sqlalchemy import Select
 from sqlalchemy.orm import selectinload
@@ -13,7 +13,13 @@ class ICategoriesRepository(ABC):
         pass
 
     @abstractmethod
-    def get_or_create_category(self, name: str) -> Category:
+    def get_or_create_category(
+        self, name: str, type: CategoryType
+    ) -> Category:
+        pass
+
+    @abstractmethod
+    def map_category_type(self, type: str) -> CategoryType | None:
         pass
 
 
@@ -24,18 +30,32 @@ class CategoriesRepository(ICategoriesRepository):
     def get_all_categories(self) -> list[Category]:
         return self.db_session.exec(select(Category)).all()
 
-    def get_or_create_category(self, name: str) -> Category:
+    def get_or_create_category(
+        self, name: str, type: CategoryType
+    ) -> Category:
         slug = slugify(name)
         category = self.db_session.exec(
             select(Category).where(Category.slug == slug)
         ).first()
 
         if not category:
-            category = Category(name=name, slug=slug)
+            category = Category(name=name, slug=slug, type=type)
             self.db_session.add(category)
             self.db_session.flush()
 
         return category
+
+    def map_category_type(self, type: str) -> CategoryType | None:
+        if type == "temàtica":
+            return CategoryType.TOPIC
+        elif type == "època":
+            return CategoryType.TIME_PERIOD
+        elif type == "personatges":
+            return CategoryType.CHARACTER
+        elif type == "localització":
+            return CategoryType.LOCATION
+        else:
+            return None
 
 
 class IEpisodesRepository(ABC):

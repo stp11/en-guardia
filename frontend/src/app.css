@@ -55,6 +55,11 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  --primary-violet: rgba(33, 20, 81, 1);
+  --primary-brown: rgba(166, 150, 119, 1);
+  --primary-orange: rgba(231, 80, 56, 1);
+  --primary-yellow: rgba(246, 147, 61, 1);
 }
 
 .dark {
@@ -128,6 +133,11 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --font-geist: "Geist", sans-serif;
+
+  --color-primary-violet: var(--primary-violet);
+  --color-primary-brown: var(--primary-brown);
+  --color-primary-orange: var(--primary-orange);
+  --color-primary-yellow: var(--primary-yellow);
 }
 
 @layer base {
