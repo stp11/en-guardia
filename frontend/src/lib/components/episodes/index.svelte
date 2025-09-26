@@ -99,7 +99,7 @@
     <div class="relative">
       <Input
         type="search"
-        class="min-w-md pl-8"
+        class="w-xs pl-8"
         placeholder="Cerca un episodi"
         oninput={(e) => debouncedSearch(e.currentTarget.value)}
       />

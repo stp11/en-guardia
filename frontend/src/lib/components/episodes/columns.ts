@@ -1,5 +1,6 @@
 import { createRawSnippet } from "svelte";
 
+import { AudioLinesIcon, CalendarIcon, TagsIcon, TextIcon } from "@lucide/svelte";
 import type { ColumnDef } from "@tanstack/table-core";
 
 import type { EpisodeWithCategories } from "client";
@@ -19,6 +20,9 @@ export const columns: ColumnDef<EpisodeWithCategories>[] = [
       }));
       return renderSnippet(titleCellSnippet, row.original.title);
     },
+    meta: {
+      icon: AudioLinesIcon,
+    },
   },
   {
     accessorKey: "description",
@@ -28,9 +32,12 @@ export const columns: ColumnDef<EpisodeWithCategories>[] = [
     cell: ({ row }) => {
       const descriptionCellSnippet = createRawSnippet(() => ({
         render: () =>
-          `<div class="pr-8 ${!row.getIsSelected() && "line-clamp-2"}">${row.original.description ?? ""}</div>`,
+          `<div class="pr-8 ${!row.getIsSelected() && "line-clamp-3"}">${row.original.description ?? ""}</div>`,
       }));
       return renderSnippet(descriptionCellSnippet, row.original.description);
+    },
+    meta: {
+      icon: TextIcon,
     },
   },
   {
@@ -47,6 +54,9 @@ export const columns: ColumnDef<EpisodeWithCategories>[] = [
       }));
       return renderSnippet(categoriesCellSnippet, row.original.categories);
     },
+    meta: {
+      icon: TagsIcon,
+    },
   },
   {
     accessorKey: "published_at",
@@ -62,9 +72,12 @@ export const columns: ColumnDef<EpisodeWithCategories>[] = [
       }).format(new Date(row.original.published_at));
 
       const publishedAtCellSnippet = createRawSnippet(() => ({
-        render: () => `<div class="pr-2.5 text-right">${date}</div>`,
+        render: () => `<div class="pr-3 text-right">${date}</div>`,
       }));
       return renderSnippet(publishedAtCellSnippet, date);
+    },
+    meta: {
+      icon: CalendarIcon,
     },
   },
 ];

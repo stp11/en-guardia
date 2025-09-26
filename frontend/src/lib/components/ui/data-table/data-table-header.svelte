@@ -20,7 +20,11 @@
   {#if header.column.getCanSort()}
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <Button variant="ghost" size="sm" class="flex items-center gap-1">
+        <Button variant="ghost" size="sm" class="flex items-center gap-2">
+          {#if header.column.columnDef.meta?.icon}
+            {@const Icon = header.column.columnDef.meta.icon}
+            <Icon class="shrink-0 size-3.5" />
+          {/if}
           <FlexRender content={header.column.columnDef.header} context={header.getContext()} />
           {#if isSorted}
             {#if isSorted.desc}
@@ -41,6 +45,12 @@
       </DropdownMenuContent>
     </DropdownMenu>
   {:else}
-    <FlexRender content={header.column.columnDef.header} context={header.getContext()} />
+    <div class="flex items-center gap-2">
+      {#if header.column.columnDef.meta?.icon}
+        {@const Icon = header.column.columnDef.meta.icon}
+        <Icon class="shrink-0 size-4" />
+      {/if}
+      <FlexRender content={header.column.columnDef.header} context={header.getContext()} />
+    </div>
   {/if}
 </div>
