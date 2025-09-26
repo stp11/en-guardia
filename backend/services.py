@@ -90,11 +90,15 @@ class ClassificationService:
             return
 
         try:
-            for items in classification.values():
-                logger.info(f"Saving categories: {items}")
-                for item in items:
+            for category_type, category_names in classification.items():
+                for name in category_names:
+                    type = self.categories_repository.map_category_type(
+                        category_type
+                    )
                     category = (
-                        self.categories_repository.get_or_create_category(item)
+                        self.categories_repository.get_or_create_category(
+                            name, type
+                        )
                     )
                     logger.info(f"Saved category: {category}")
                     all_categories.append(category)

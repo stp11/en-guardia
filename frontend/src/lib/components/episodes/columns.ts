@@ -4,7 +4,7 @@ import type { ColumnDef } from "@tanstack/table-core";
 
 import type { EpisodeWithCategories } from "client";
 
-import { capitalize } from "lib/utils.js";
+import { capitalize, getCategoryStyles } from "lib/utils.js";
 
 import { renderSnippet } from "../ui/data-table/render-helpers";
 
@@ -42,7 +42,7 @@ export const columns: ColumnDef<EpisodeWithCategories>[] = [
       const categoriesCellSnippet = createRawSnippet(() => ({
         render: () =>
           `<div class="flex flex-wrap gap-2">
-          ${row.original.categories?.map((category) => `<span class="border text-xs rounded-md px-2 py-0.5">${capitalize(category.name)}</span>`).join("")}
+          ${row.original.categories?.map((category) => `<span class="text-xs rounded-md px-2 py-0.5 ${getCategoryStyles(category.type)}">${capitalize(category.name)}</span>`).join("")}
         </div>`,
       }));
       return renderSnippet(categoriesCellSnippet, row.original.categories);
