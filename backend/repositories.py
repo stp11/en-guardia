@@ -78,7 +78,9 @@ class EpisodesRepository(IEpisodesRepository):
     def __init__(self, session: Session):
         self.db_session = session
 
-    def get_episodes_query(self, search: str | None, order: str) -> Select:
+    def get_episodes_query(
+        self, search: str | None, order: str, categories: list[int] = []
+    ) -> Select:
         query = select(Episode).options(selectinload(Episode.categories))
 
         if search and search.strip():
@@ -89,6 +91,11 @@ class EpisodesRepository(IEpisodesRepository):
             query = query.order_by(Episode.published_at.desc())
         else:
             query = query.order_by(Episode.published_at.asc())
+
+        if len(categories) > 0:
+            query = query.join(EpisodeCategory).where(
+                EpisodeCategory.category_id.in_(categories)
+            )
 
         return query
 
