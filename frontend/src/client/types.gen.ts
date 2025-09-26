@@ -125,6 +125,11 @@ export type GetEpisodesApiEpisodesGetData = {
          */
         order?: string;
         /**
+         * Categories
+         * Comma-separated list of category IDs
+         */
+        categories?: string;
+        /**
          * Page
          * Page number
          */

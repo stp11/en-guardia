@@ -18,5 +18,9 @@ class TestEpisodesService:
         )
 
         self.mock_repo.get_episodes_query.assert_called_once_with(
-            search=search_term, order=order_direction
+            search=search_term, order=order_direction, categories=[]
         )
+
+    def test_episodes_service_calls_repository_with_categories(self):
+        result = self.service._parse_categories(categories_str="1,2,3")
+        assert result == [1, 2, 3]

@@ -1,6 +1,6 @@
 from database import get_session
 from dependencies import get_episodes_service
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import paginate
 from models import EpisodeWithCategories
@@ -19,6 +19,11 @@ def get_episodes(
     session: Session = Depends(get_session),
     search: str = "",
     order: str = "desc",
+    categories: str = Query(
+        "", description="Comma-separated list of category IDs"
+    ),
 ):
-    query = service.get_episodes_query(search=search, order=order)
+    query = service.get_episodes_query(
+        search=search, order=order, categories=categories
+    )
     return paginate(session, query)

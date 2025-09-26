@@ -13,14 +13,40 @@ class EpisodesService:
     def __init__(self, episodes_repository: IEpisodesRepository):
         self.episodes_repository = episodes_repository
 
-    def get_episodes_query(self, search: str | None, order: str) -> Select:
+    def get_episodes_query(
+        self, search: str | None, order: str, categories: str = ""
+    ) -> Select:
         """
         Orchestrates fetching the episodes query from the repository.
-        Business logic would go here.
         """
+        category_list = self._parse_categories(categories)
+
         return self.episodes_repository.get_episodes_query(
-            search=search, order=order
+            search=search, order=order, categories=category_list
         )
+
+    def _parse_categories(self, categories_str: str) -> list[int]:
+        """
+        Parse comma-separated category IDs string into a list of integers.
+        """
+        category_list = []
+
+        if not categories_str or not categories_str.strip():
+            return category_list
+
+        try:
+            category_list = [
+                int(cat.strip())
+                for cat in categories_str.split(",")
+                if cat.strip()
+            ]
+        except ValueError as e:
+            logger.warning(
+                f"Failed to parse categories '{categories_str}': {e}"
+            )
+            category_list = []
+
+        return category_list
 
     def create_episode_from_api_data(self, data: dict) -> Episode:
         """Maps API data dictionary to an Episode object."""
