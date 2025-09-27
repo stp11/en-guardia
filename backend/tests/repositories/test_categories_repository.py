@@ -10,7 +10,7 @@ class TestCategoriesRepository:
                 id=1,
                 name="Antiga Grecia",
                 slug="antiga-grecia",
-                type=CategoryType.TOPIC,
+                type=CategoryType.LOCATION,
             ),
             Category(
                 id=2,
@@ -34,6 +34,18 @@ class TestCategoriesRepository:
         results = repo.get_all_categories()
 
         assert len(results) == 3
+
+    def test_get_categories_query(self, db_session: Session):
+        db_session.add_all(self.categories)
+        db_session.commit()
+        repo = CategoriesRepository(session=db_session)
+
+        query = repo.get_categories_query(CategoryType.LOCATION)
+        assert query is not None
+
+        results = db_session.exec(query).all()
+        assert len(results) == 1
+        assert results[0].name == "Antiga Grecia"
 
     def test_get_or_create_category(self, db_session: Session):
         db_session.add_all(self.categories)

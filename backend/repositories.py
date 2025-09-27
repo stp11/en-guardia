@@ -13,6 +13,10 @@ class ICategoriesRepository(ABC):
         pass
 
     @abstractmethod
+    def get_categories_query(self, type: CategoryType) -> Select:
+        pass
+
+    @abstractmethod
     def get_or_create_category(
         self, name: str, type: CategoryType
     ) -> Category:
@@ -29,6 +33,13 @@ class CategoriesRepository(ICategoriesRepository):
 
     def get_all_categories(self) -> list[Category]:
         return self.db_session.exec(select(Category)).all()
+
+    def get_categories_query(self, type: CategoryType) -> Select:
+        return (
+            select(Category)
+            .where(Category.type == type)
+            .order_by(Category.name)
+        )
 
     def get_or_create_category(
         self, name: str, type: CategoryType

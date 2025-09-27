@@ -1,10 +1,10 @@
 from database import get_session
-from dependencies import get_episodes_service
+from dependencies import get_categories_service, get_episodes_service
 from fastapi import APIRouter, Depends, Query
 from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import paginate
-from models import EpisodeWithCategories
-from services import EpisodesService
+from models import Category, CategoryType, EpisodeWithCategories
+from services import CategoriesService, EpisodesService
 from sqlmodel import Session
 
 router = APIRouter()
@@ -27,3 +27,12 @@ def get_episodes(
         search=search, order=order, categories=categories
     )
     return paginate(session, query)
+
+
+@router.get("/categories", tags=["categories"], response_model=Page[Category])
+def get_categories(
+    service: CategoriesService = Depends(get_categories_service),
+    session: Session = Depends(get_session),
+    type: CategoryType = Query("", description="Category type"),
+):
+    return paginate(session, service.get_categories_query(type=type))

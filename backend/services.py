@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 
 from logger import logger
-from models import Episode
+from models import CategoryType, Episode
 from openai import OpenAI
 from prompts import classification_prompt
 from repositories import ICategoriesRepository, IEpisodesRepository
@@ -142,3 +142,11 @@ class ClassificationService:
         logger.info(
             f"Linked episode {episode.id} to categories {all_categories}"
         )
+
+
+class CategoriesService:
+    def __init__(self, categories_repository: ICategoriesRepository):
+        self.categories_repository = categories_repository
+
+    def get_categories_query(self, type: CategoryType) -> Select:
+        return self.categories_repository.get_categories_query(type=type)
