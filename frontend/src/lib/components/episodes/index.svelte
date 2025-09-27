@@ -1,8 +1,8 @@
 <script lang="ts">
   import { derived, writable } from "svelte/store";
 
-  import { Search } from "@lucide/svelte";
-  import { createQuery } from "@tanstack/svelte-query";
+  import { Search, Trash2Icon } from "@lucide/svelte";
+  import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
   import {
     type PaginationState,
     type RowSelectionState,
@@ -12,19 +12,32 @@
     getSortedRowModel,
   } from "@tanstack/table-core";
 
-  import { getEpisodesApiEpisodesGet } from "client";
+  import {
+    type CategoryBase,
+    type CategoryType,
+    getCategoriesApiCategoriesGet,
+    getEpisodesApiEpisodesGet,
+  } from "client";
 
+  import { Button } from "lib/components/ui/button";
   import { FlexRender, createSvelteTable } from "lib/components/ui/data-table";
+  import DataTableHeader from "lib/components/ui/data-table/data-table-header.svelte";
+  import DataTablePagination from "lib/components/ui/data-table/data-table-pagination.svelte";
   import Input from "lib/components/ui/input.svelte";
   import * as Table from "lib/components/ui/table";
   import { debounce } from "lib/hooks/use-debounce";
 
-  import DataTableHeader from "../ui/data-table/data-table-header.svelte";
-  import DataTablePagination from "../ui/data-table/data-table-pagination.svelte";
   import { columns } from "./columns";
+  import Filter from "./filter.svelte";
 
   const searchQuery = writable("");
   const page = writable(1);
+  const categories = writable<Record<CategoryType, string[]>>({
+    topic: [],
+    character: [],
+    location: [],
+    time_period: [],
+  });
   const sorting = writable<SortingState>([]);
   const rowSelection = writable<RowSelectionState>({});
   const order = derived(sorting, ($sorting) => {
@@ -41,7 +54,7 @@
   }, 300);
 
   $: query = createQuery({
-    queryKey: ["episodes", $searchQuery, $page, $order],
+    queryKey: ["episodes", $searchQuery, $page, $order, $categories],
     queryFn: () =>
       getEpisodesApiEpisodesGet({
         query: {
@@ -49,6 +62,7 @@
           page: $page,
           size: pageSize,
           order: $order ? $order : undefined,
+          categories: Object.values($categories).flat().join(","),
         },
       }),
   });
@@ -92,20 +106,174 @@
       typeof state === "function" ? state(table.getState().rowSelection) : state;
     rowSelection.set(newRowSelection as RowSelectionState);
   };
+
+  const handleCategoriesChange = (type: CategoryType, newCategories: string[]) => {
+    categories.update((prev) => ({
+      ...prev,
+      [type]: newCategories,
+    }));
+    page.set(1);
+  };
+
+  const clearCategories = () => {
+    categories.set({ topic: [], character: [], location: [], time_period: [] });
+    page.set(1);
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const getNextPageParam = (lastPage: any) => {
+    const data = lastPage.data;
+    if (data.page && data.pages && data.page < data.pages) {
+      return data.page + 1;
+    }
+    return undefined;
+  };
+
+  const locationsQuery = createInfiniteQuery({
+    queryKey: ["locations"],
+    queryFn: ({ pageParam }) =>
+      getCategoriesApiCategoriesGet({ query: { type: "location", page: pageParam } }),
+    getNextPageParam,
+    initialPageParam: 1,
+  });
+
+  const topicsQuery = createInfiniteQuery({
+    queryKey: ["topics"],
+    queryFn: ({ pageParam }) =>
+      getCategoriesApiCategoriesGet({ query: { type: "topic", page: pageParam } }),
+    getNextPageParam,
+    initialPageParam: 1,
+  });
+
+  const charactersQuery = createInfiniteQuery({
+    queryKey: ["characters"],
+    queryFn: ({ pageParam }) =>
+      getCategoriesApiCategoriesGet({ query: { type: "character", page: pageParam } }),
+    getNextPageParam,
+    initialPageParam: 1,
+  });
+
+  const timePeriodsQuery = createInfiniteQuery({
+    queryKey: ["timePeriods"],
+    queryFn: ({ pageParam }) =>
+      getCategoriesApiCategoriesGet({ query: { type: "time_period", page: pageParam } }),
+    getNextPageParam,
+    initialPageParam: 1,
+  });
+
+  const mapCategoriesDataToOptions = (category: CategoryBase[]) => {
+    return category.map(({ id, name }) => ({ value: String(id), label: name }));
+  };
+
+  const locations = derived(
+    locationsQuery,
+    ($locationsQuery) =>
+      $locationsQuery?.data?.pages.flatMap((page) => mapCategoriesDataToOptions(page.data.items)) ??
+      []
+  );
+
+  const topics = derived(
+    topicsQuery,
+    ($topicsQuery) =>
+      $topicsQuery?.data?.pages.flatMap((page) => mapCategoriesDataToOptions(page.data.items)) ?? []
+  );
+
+  const characters = derived(
+    charactersQuery,
+    ($charactersQuery) =>
+      $charactersQuery?.data?.pages.flatMap((page) =>
+        mapCategoriesDataToOptions(page.data.items)
+      ) ?? []
+  );
+
+  const timePeriods = derived(
+    timePeriodsQuery,
+    ($timePeriodsQuery) =>
+      $timePeriodsQuery?.data?.pages.flatMap((page) =>
+        mapCategoriesDataToOptions(page.data.items)
+      ) ?? []
+  );
+
+  // Auto-fetch all pages when query loads
+  $: if (
+    $locationsQuery.data &&
+    $locationsQuery.hasNextPage &&
+    !$locationsQuery.isFetchingNextPage
+  ) {
+    $locationsQuery.fetchNextPage();
+  }
+
+  $: if ($topicsQuery.data && $topicsQuery.hasNextPage && !$topicsQuery.isFetchingNextPage) {
+    $topicsQuery.fetchNextPage();
+  }
+
+  $: if (
+    $charactersQuery.data &&
+    $charactersQuery.hasNextPage &&
+    !$charactersQuery.isFetchingNextPage
+  ) {
+    $charactersQuery.fetchNextPage();
+  }
+
+  $: if (
+    $timePeriodsQuery.data &&
+    $timePeriodsQuery.hasNextPage &&
+    !$timePeriodsQuery.isFetchingNextPage
+  ) {
+    $timePeriodsQuery.fetchNextPage();
+  }
+
+  $: hasCategories = Object.values($categories).some((categories) => categories.length > 0);
 </script>
 
 <div class="xl:max-w-screen-xl 2xl:mx-auto">
   <div class="flex justify-between items-center mb-4">
-    <div class="relative">
-      <Input
-        type="search"
-        class="w-xs pl-8"
-        placeholder="Cerca un episodi"
-        oninput={(e) => debouncedSearch(e.currentTarget.value)}
-      />
-      <div class="absolute left-0 top-1/2 -translate-y-1/2 pl-2">
-        <Search class="w-4 h-4" />
+    <div class="flex gap-2">
+      <div class="relative">
+        <Input
+          type="search"
+          class="w-xs pl-8"
+          placeholder="Cerca un episodi"
+          oninput={(e) => debouncedSearch(e.currentTarget.value)}
+        />
+        <div class="absolute left-0 top-1/2 -translate-y-1/2 pl-2">
+          <Search class="w-4 h-4" />
+        </div>
       </div>
+      <Filter
+        label="Temàtica"
+        type="topic"
+        items={$topics}
+        selectedCategories={$categories.topic}
+        onSelect={(newCategories) => handleCategoriesChange("topic", newCategories)}
+      />
+      <Filter
+        label="Personatge"
+        type="character"
+        items={$characters}
+        selectedCategories={$categories.character}
+        onSelect={(newCategories) => handleCategoriesChange("character", newCategories)}
+      />
+      <Filter
+        label="Localització"
+        type="location"
+        items={$locations}
+        selectedCategories={$categories.location}
+        onSelect={(newCategories) => handleCategoriesChange("location", newCategories)}
+      />
+      <Filter
+        label="Època"
+        type="time_period"
+        items={$timePeriods}
+        selectedCategories={$categories.time_period}
+        onSelect={(newCategories) => handleCategoriesChange("time_period", newCategories)}
+      />
+      {#if hasCategories}
+        <Button variant="ghost" onclick={clearCategories}>
+          <Trash2Icon />
+          Neteja filtres
+        </Button>
+      {/if}
     </div>
     <DataTablePagination {table} />
   </div>

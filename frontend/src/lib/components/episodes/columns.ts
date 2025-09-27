@@ -1,6 +1,6 @@
 import { createRawSnippet } from "svelte";
 
-import { AudioLinesIcon, CalendarIcon, TagsIcon, TextIcon } from "@lucide/svelte";
+import { AudioLinesIcon, CalendarIcon, TagsIcon, TextAlignJustifyIcon } from "@lucide/svelte";
 import type { ColumnDef } from "@tanstack/table-core";
 
 import type { EpisodeWithCategories } from "client";
@@ -37,7 +37,7 @@ export const columns: ColumnDef<EpisodeWithCategories>[] = [
       return renderSnippet(descriptionCellSnippet, row.original.description);
     },
     meta: {
-      icon: TextIcon,
+      icon: TextAlignJustifyIcon,
     },
   },
   {

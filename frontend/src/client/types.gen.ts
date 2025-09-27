@@ -5,6 +5,25 @@ export type ClientOptions = {
 };
 
 /**
+ * Category
+ */
+export type Category = {
+    /**
+     * Id
+     */
+    id?: number | null;
+    /**
+     * Slug
+     */
+    slug: string;
+    /**
+     * Name
+     */
+    name: string;
+    type: CategoryType | null;
+};
+
+/**
  * CategoryBase
  */
 export type CategoryBase = {
@@ -66,6 +85,32 @@ export type HttpValidationError = {
      * Detail
      */
     detail?: Array<ValidationError>;
+};
+
+/**
+ * Page[Category]
+ */
+export type PageCategory = {
+    /**
+     * Items
+     */
+    items: Array<Category>;
+    /**
+     * Total
+     */
+    total?: number | null;
+    /**
+     * Page
+     */
+    page: number | null;
+    /**
+     * Size
+     */
+    size: number | null;
+    /**
+     * Pages
+     */
+    pages?: number | null;
 };
 
 /**
@@ -160,3 +205,43 @@ export type GetEpisodesApiEpisodesGetResponses = {
 };
 
 export type GetEpisodesApiEpisodesGetResponse = GetEpisodesApiEpisodesGetResponses[keyof GetEpisodesApiEpisodesGetResponses];
+
+export type GetCategoriesApiCategoriesGetData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Category type
+         */
+        type?: CategoryType;
+        /**
+         * Page
+         * Page number
+         */
+        page?: number;
+        /**
+         * Size
+         * Page size
+         */
+        size?: number;
+    };
+    url: '/api/categories';
+};
+
+export type GetCategoriesApiCategoriesGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetCategoriesApiCategoriesGetError = GetCategoriesApiCategoriesGetErrors[keyof GetCategoriesApiCategoriesGetErrors];
+
+export type GetCategoriesApiCategoriesGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: PageCategory;
+};
+
+export type GetCategoriesApiCategoriesGetResponse = GetCategoriesApiCategoriesGetResponses[keyof GetCategoriesApiCategoriesGetResponses];
