@@ -61,7 +61,7 @@
     <Command>
       <CommandInput placeholder="Cerca..." />
       <CommandList>
-        <CommandEmpty class="py-2">No data found.</CommandEmpty>
+        <CommandEmpty class="py-2">No s'han trobat resultats.</CommandEmpty>
         {#if items.length > 0}
           <CommandGroup>
             {#each items as item (item.value)}
