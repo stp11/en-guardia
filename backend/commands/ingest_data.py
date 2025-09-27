@@ -1,6 +1,7 @@
 import json
 
 import requests
+
 from database import get_session
 from logger import logger
 from models import IngestionPosition

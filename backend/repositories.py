@@ -1,15 +1,20 @@
 from abc import ABC, abstractmethod
 
-from models import Category, CategoryType, Episode, EpisodeCategory
 from slugify import slugify
 from sqlalchemy import Select
 from sqlalchemy.orm import selectinload
 from sqlmodel import Session, select
 
+from models import Category, CategoryType, Episode, EpisodeCategory
+
 
 class ICategoriesRepository(ABC):
     @abstractmethod
     def get_all_categories(self) -> list[Category]:
+        pass
+
+    @abstractmethod
+    def get_categories_query(self, type: CategoryType) -> Select:
         pass
 
     @abstractmethod
@@ -29,6 +34,13 @@ class CategoriesRepository(ICategoriesRepository):
 
     def get_all_categories(self) -> list[Category]:
         return self.db_session.exec(select(Category)).all()
+
+    def get_categories_query(self, type: CategoryType) -> Select:
+        return (
+            select(Category)
+            .where(Category.type == type)
+            .order_by(Category.name)
+        )
 
     def get_or_create_category(
         self, name: str, type: CategoryType

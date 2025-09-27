@@ -1,9 +1,10 @@
 import re
 from unittest.mock import Mock
 
+from sqlmodel import select
+
 from commands.ingest_data import ingest_data
 from models import Episode, IngestionPosition
-from sqlmodel import select
 
 
 def mock_api_response(items, pagination=None):

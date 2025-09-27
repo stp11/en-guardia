@@ -26,3 +26,17 @@ export const getCategoryStyles = (category: CategoryType | null) => {
       return "bg-primary-brown/10 text-primary-brown";
   }
 };
+
+export const getCheckboxStyles = (category: CategoryType | null) => {
+  if (!category) return "";
+  switch (category) {
+    case "topic":
+      return "data-[state=checked]:bg-primary-violet data-[state=checked]:border-primary-violet";
+    case "location":
+      return "data-[state=checked]:bg-primary-yellow data-[state=checked]:border-primary-yellow";
+    case "character":
+      return "data-[state=checked]:bg-primary-orange data-[state=checked]:border-primary-orange";
+    case "time_period":
+      return "data-[state=checked]:bg-primary-brown data-[state=checked]:border-primary-brown";
+  }
+};

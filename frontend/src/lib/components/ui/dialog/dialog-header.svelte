@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { HTMLTdAttributes } from "svelte/elements";
+  import type { HTMLAttributes } from "svelte/elements";
 
   import { type WithElementRef, cn } from "lib/utils.js";
 
@@ -8,14 +8,14 @@
     class: className,
     children,
     ...restProps
-  }: WithElementRef<HTMLTdAttributes> = $props();
+  }: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
 </script>
 
-<td
+<div
   bind:this={ref}
-  data-slot="table-cell"
-  class={cn(" bg-clip-padding p-3 align-middle [&:has([role=checkbox])]:pr-0", className)}
+  data-slot="dialog-header"
+  class={cn("flex flex-col gap-2 text-center sm:text-left", className)}
   {...restProps}
 >
   {@render children?.()}
-</td>
+</div>

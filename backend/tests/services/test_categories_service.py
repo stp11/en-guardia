@@ -1,10 +1,11 @@
 import json
 from unittest.mock import MagicMock
 
-from models import Category, Episode
 from openai import OpenAI
+
+from models import Category, CategoryType, Episode
 from repositories import ICategoriesRepository, IEpisodesRepository
-from services import ClassificationService
+from services import CategoriesService, ClassificationService
 
 
 class TestClassificationService:
@@ -107,3 +108,17 @@ class TestClassificationService:
         self.service.save_categories_to_episode(episode, classification)
         self.mock_categories_repo.get_or_create_category.assert_not_called()
         self.mock_episodes_repo.link_episode_to_category.assert_not_called()
+
+
+class TestCategoriesService:
+    def setup_method(self):
+        self.mock_categories_repo = MagicMock(spec=ICategoriesRepository)
+        self.service = CategoriesService(
+            categories_repository=self.mock_categories_repo
+        )
+
+    def test_get_categories_query(self):
+        self.service.get_categories_query(CategoryType.TOPIC)
+        self.mock_categories_repo.get_categories_query.assert_called_once_with(
+            type=CategoryType.TOPIC
+        )

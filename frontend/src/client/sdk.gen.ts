@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { GetEpisodesApiEpisodesGetData, GetEpisodesApiEpisodesGetErrors, GetEpisodesApiEpisodesGetResponses } from './types.gen';
+import type { GetCategoriesApiCategoriesGetData, GetCategoriesApiCategoriesGetErrors, GetCategoriesApiCategoriesGetResponses, GetEpisodesApiEpisodesGetData, GetEpisodesApiEpisodesGetErrors, GetEpisodesApiEpisodesGetResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -24,6 +24,16 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
 export const getEpisodesApiEpisodesGet = <ThrowOnError extends boolean = false>(options?: Options<GetEpisodesApiEpisodesGetData, ThrowOnError>) => {
     return (options?.client ?? client).get<GetEpisodesApiEpisodesGetResponses, GetEpisodesApiEpisodesGetErrors, ThrowOnError>({
         url: '/api/episodes',
+        ...options
+    });
+};
+
+/**
+ * Get Categories
+ */
+export const getCategoriesApiCategoriesGet = <ThrowOnError extends boolean = false>(options?: Options<GetCategoriesApiCategoriesGetData, ThrowOnError>) => {
+    return (options?.client ?? client).get<GetCategoriesApiCategoriesGetResponses, GetCategoriesApiCategoriesGetErrors, ThrowOnError>({
+        url: '/api/categories',
         ...options
     });
 };
