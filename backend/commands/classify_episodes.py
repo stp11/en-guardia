@@ -1,12 +1,13 @@
 import os
 
+from openai import OpenAI
+from sqlmodel import select
+
 from database import get_session
 from logger import logger
 from models import Episode
-from openai import OpenAI
 from repositories import CategoriesRepository, EpisodesRepository
 from services import ClassificationService
-from sqlmodel import select
 
 
 def classify_episodes(batch_size: int = 50, max_total: int = None):

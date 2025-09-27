@@ -1,8 +1,9 @@
 import json
 from unittest.mock import MagicMock
 
-from models import Category, CategoryType, Episode
 from openai import OpenAI
+
+from models import Category, CategoryType, Episode
 from repositories import ICategoriesRepository, IEpisodesRepository
 from services import CategoriesService, ClassificationService
 

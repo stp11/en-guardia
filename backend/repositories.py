@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 
-from models import Category, CategoryType, Episode, EpisodeCategory
 from slugify import slugify
 from sqlalchemy import Select
 from sqlalchemy.orm import selectinload
 from sqlmodel import Session, select
+
+from models import Category, CategoryType, Episode, EpisodeCategory
 
 
 class ICategoriesRepository(ABC):

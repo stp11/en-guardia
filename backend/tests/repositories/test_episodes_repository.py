@@ -1,8 +1,9 @@
 from datetime import datetime
 
+from sqlmodel import Session
+
 from models import Category, CategoryType, Episode, EpisodeCategory
 from repositories import EpisodesRepository
-from sqlmodel import Session
 
 
 class TestEpisodesRepository:

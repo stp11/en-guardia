@@ -1,6 +1,7 @@
+from sqlmodel import Session
+
 from models import Category, CategoryType
 from repositories import CategoriesRepository
-from sqlmodel import Session
 
 
 class TestCategoriesRepository:

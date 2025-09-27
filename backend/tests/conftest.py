@@ -1,9 +1,10 @@
 import pytest
-from database import get_session
 from fastapi.testclient import TestClient
-from main import app
 from sqlalchemy.pool import StaticPool
 from sqlmodel import Session, SQLModel, create_engine
+
+from database import get_session
+from main import app
 
 test_engine = create_engine(
     "sqlite:///:memory:",

@@ -1,9 +1,14 @@
-from database import get_session
 from fastapi import Depends
-from repositories import (CategoriesRepository, EpisodesRepository,
-                          ICategoriesRepository, IEpisodesRepository)
-from services import CategoriesService, EpisodesService
 from sqlmodel import Session
+
+from database import get_session
+from repositories import (
+    CategoriesRepository,
+    EpisodesRepository,
+    ICategoriesRepository,
+    IEpisodesRepository,
+)
+from services import CategoriesService, EpisodesService
 
 
 def get_episodes_repository(

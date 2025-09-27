@@ -1,12 +1,13 @@
 import json
 from datetime import datetime
 
+from openai import OpenAI
+from sqlalchemy import Select
+
 from logger import logger
 from models import CategoryType, Episode
-from openai import OpenAI
 from prompts import classification_prompt
 from repositories import ICategoriesRepository, IEpisodesRepository
-from sqlalchemy import Select
 
 
 class EpisodesService:

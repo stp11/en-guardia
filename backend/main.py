@@ -1,7 +1,8 @@
-from api.endpoints import router as api_router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_pagination import add_pagination
+
+from api.endpoints import router as api_router
 
 tags_metadata = [
     {

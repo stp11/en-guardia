@@ -1,11 +1,12 @@
-from database import get_session
-from dependencies import get_categories_service, get_episodes_service
 from fastapi import APIRouter, Depends, Query
 from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import paginate
+from sqlmodel import Session
+
+from database import get_session
+from dependencies import get_categories_service, get_episodes_service
 from models import Category, CategoryType, EpisodeWithCategories
 from services import CategoriesService, EpisodesService
-from sqlmodel import Session
 
 router = APIRouter()
 
