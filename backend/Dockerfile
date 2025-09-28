@@ -18,7 +18,7 @@ RUN if [ "$BUILD_ENVIRONMENT" = "local" ]; then \
         pip install --no-cache-dir -r /app/${BUILD_ENVIRONMENT}.txt; \
     fi
 
-COPY ./backend .
+COPY /backend .
 
 RUN chmod +x /app/entrypoint.sh
 
