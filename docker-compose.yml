@@ -5,7 +5,9 @@ services:
   backend:
     build:
       context: .
-      dockerfile: ./backend/Dockerfile
+      dockerfile: ./Dockerfile
+      args:
+        BUILD_ENVIRONMENT: local
     env_file:
       - ./backend/.env
     ports:
