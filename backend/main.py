@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_pagination import add_pagination
@@ -17,7 +19,8 @@ app = FastAPI(
     openapi_tags=tags_metadata,
 )
 
-origins = ["http://localhost:5173"]
+origins = os.environ.get("ALLOWED_ORIGINS")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
