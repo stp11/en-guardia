@@ -45,5 +45,6 @@ jobs:
         run: pip install -r requirements/local.txt
 
       - name: Run tests with Pytest
-
+        env:
+          ALLOWED_ORIGINS: "*"
         run: python -m pytest
