@@ -1,7 +1,7 @@
 <script lang="ts">
   import { derived, writable } from "svelte/store";
 
-  import { Search, Trash2Icon } from "@lucide/svelte";
+  import { LoaderCircleIcon, Search, Trash2Icon } from "@lucide/svelte";
   import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
   import {
     type PaginationState,
@@ -291,25 +291,33 @@
         {/each}
       </Table.Header>
       <Table.Body>
-        {#each table.getRowModel().rows as row (row.id)}
-          <Table.Row
-            data-state={row.getIsSelected() && "selected"}
-            onclick={() =>
-              handleRowSelectionChange((prev) => ({ ...prev, [row.id]: !row.getIsSelected() }))}
-          >
-            {#each row.getVisibleCells() as cell (cell.id)}
-              <Table.Cell style={`width: ${cell.column.getSize()}px`}>
-                <FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
-              </Table.Cell>
-            {/each}
-          </Table.Row>
-        {:else}
+        {#if $query?.isLoading}
           <Table.Row>
             <Table.Cell colspan={columns.length} class="h-24 text-center">
-              No s'han trobat resultats.
+              <LoaderCircleIcon class="animate-spin text-accent-foreground/30 w-full" />
             </Table.Cell>
           </Table.Row>
-        {/each}
+        {:else}
+          {#each table.getRowModel().rows as row (row.id)}
+            <Table.Row
+              data-state={row.getIsSelected() && "selected"}
+              onclick={() =>
+                handleRowSelectionChange((prev) => ({ ...prev, [row.id]: !row.getIsSelected() }))}
+            >
+              {#each row.getVisibleCells() as cell (cell.id)}
+                <Table.Cell style={`width: ${cell.column.getSize()}px`}>
+                  <FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
+                </Table.Cell>
+              {/each}
+            </Table.Row>
+          {:else}
+            <Table.Row>
+              <Table.Cell colspan={columns.length} class="h-24 text-center">
+                No s'han trobat resultats.
+              </Table.Cell>
+            </Table.Row>
+          {/each}
+        {/if}
       </Table.Body>
     </Table.Root>
   </div>
