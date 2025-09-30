@@ -1,6 +1,10 @@
+import hashlib
 from datetime import datetime, timezone
 from enum import Enum
 
+from fastapi import Request
+from slugify import slugify
+from sqladmin import ModelView
 from sqlmodel import TEXT, Column, DateTime, Field, Relationship, SQLModel
 
 
@@ -37,6 +41,13 @@ class Category(SQLModel, table=True):
         back_populates="categories", link_model=EpisodeCategory
     )
 
+    def __str__(self) -> str:
+        return self.name
+
+    @staticmethod
+    def slugify_name(name: str) -> str:
+        return slugify(name)
+
 
 class EpisodeBase(SQLModel):
     id: int
@@ -61,6 +72,9 @@ class Episode(SQLModel, table=True):
         back_populates="episodes", link_model=EpisodeCategory
     )
 
+    def __str__(self) -> str:
+        return self.title
+
 
 class IngestionPosition(SQLModel, table=True):
     id: int | None = Field(default=1, primary_key=True)
@@ -69,3 +83,152 @@ class IngestionPosition(SQLModel, table=True):
         default_factory=lambda: datetime.now(timezone.utc),
         sa_column=Column(DateTime, onupdate=datetime.now(timezone.utc)),
     )
+
+
+class Users(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    username: str = Field(unique=True, index=True)
+    password_hash: str
+    is_active: bool = Field(default=True)
+    is_admin: bool = Field(default=False)
+    created_at: datetime | None = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
+
+    @staticmethod
+    def hash_password(password: str) -> str:
+        """Hash a password using SHA-256"""
+        return hashlib.sha256(password.encode()).hexdigest()
+
+    def verify_password(self, password: str) -> bool:
+        """Verify a password against the stored hash"""
+        return self.password_hash == self.hash_password(password)
+
+    def __str__(self) -> str:
+        return self.username
+
+
+# Admin view
+class EpisodeAdmin(ModelView, model=Episode):
+    name_plural = "Episodis"
+    can_create = False
+    can_edit = True
+    can_delete = False
+    can_view_details = True
+
+    column_list = [
+        Episode.id,
+        Episode.title,
+        Episode.categories,
+        Episode.published_at,
+    ]
+    column_formatters = {
+        Episode.categories: lambda model, attribute: (
+            [category.name for category in model.categories]
+            if model.categories
+            else "No hi ha categories"
+        ),
+    }
+    column_searchable_list = [Episode.title]
+    column_sortable_list = [Episode.published_at]
+    column_default_sort = [(Episode.published_at, True)]
+    column_details_list = [
+        Episode.title,
+        Episode.description,
+        Episode.categories,
+    ]
+
+    form_columns = [
+        Episode.title,
+        Episode.description,
+        Episode.categories,
+    ]
+
+    # Multi-select as tags
+    form_ajax_refs = {
+        "categories": {
+            "fields": ("name",),
+        }
+    }
+
+    form_widget_args = {
+        "description": {
+            "rows": 8,
+            "readonly": True,
+        },
+        "title": {
+            "readonly": True,
+        },
+        "categories": {
+            "multiple": True,
+        },
+    }
+
+    page_size = 25
+
+
+class CategoryAdmin(ModelView, model=Category):
+    name_plural = "Categories"
+    can_create = True
+    can_edit = True
+    can_delete = True
+    can_view_details = True
+
+    column_list = [Category.name, Category.type, Category.episodes]
+    column_formatters = {
+        Category.type: lambda model, attribute: (
+            {
+                CategoryType.TOPIC.value: "Temàtica",
+                CategoryType.LOCATION.value: "Localització",
+                CategoryType.CHARACTER.value: "Personatge",
+                CategoryType.TIME_PERIOD.value: "Època",
+            }.get(model.type.value if model.type else None, "")
+        )
+    }
+    column_searchable_list = [Category.name]
+    column_sortable_list = [Category.name, Category.type]
+    column_default_sort = [(Category.name, False)]
+    column_details_list = [
+        Category.name,
+        Category.slug,
+        Category.type,
+        Category.episodes,
+    ]
+
+    form_columns = [Category.name, Category.type, Category.episodes]
+
+    # Multi-select as tags
+    form_ajax_refs = {
+        "episodes": {
+            "fields": ("title",),
+        }
+    }
+
+    page_size = 50
+
+    async def on_model_change(
+        self, data: dict, model: Category, is_created: bool, request: Request
+    ) -> None:
+        name = (data.get("name") or getattr(model, "name", "")).strip()
+        if name:
+            slug = Category.slugify_name(name)
+            from sqlmodel import select
+
+            with self.session_maker() as session:
+                existing = (
+                    session.execute(
+                        select(Category).where(Category.slug == slug)
+                    )
+                    .scalars()
+                    .first()
+                )
+
+                if existing and (
+                    getattr(model, "id", None) is None
+                    or existing.id != model.id
+                ):
+                    raise ValueError(
+                        "A category with this slug already exists."
+                    )
+
+            data["slug"] = slug

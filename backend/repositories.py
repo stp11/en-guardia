@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 
-from slugify import slugify
 from sqlalchemy import Select
 from sqlalchemy.orm import selectinload
 from sqlmodel import Session, select
@@ -45,7 +44,7 @@ class CategoriesRepository(ICategoriesRepository):
     def get_or_create_category(
         self, name: str, type: CategoryType
     ) -> Category:
-        slug = slugify(name)
+        slug = Category.slugify_name(name)
         category = self.db_session.exec(
             select(Category).where(Category.slug == slug)
         ).first()

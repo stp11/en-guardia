@@ -3,27 +3,36 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_pagination import add_pagination
+from sqladmin import Admin
 
+from admin import AdminAuth
 from api.endpoints import router as api_router
+from database import engine
+from models import CategoryAdmin, EpisodeAdmin
 
-tags_metadata = [
-    {
-        "name": "episodis",
-        "description": "Episodis API",
-    }
-]
+ADMIN_PATH = os.environ.get("ADMIN_PATH", "/admin")
+ADMIN_SECRET_KEY = os.environ.get("ADMIN_SECRET_KEY")
+ORIGINS = os.environ.get("ALLOWED_ORIGINS")
 
 app = FastAPI(
     docs_url="/api/docs",
     redoc_url=None,
-    openapi_tags=tags_metadata,
 )
 
-origins = os.environ.get("ALLOWED_ORIGINS")
+authentication_backend = AdminAuth(secret_key=ADMIN_SECRET_KEY)
+admin = Admin(
+    app=app,
+    engine=engine,
+    authentication_backend=authentication_backend,
+    base_url=ADMIN_PATH,
+)
+
+admin.add_view(EpisodeAdmin)
+admin.add_view(CategoryAdmin)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
