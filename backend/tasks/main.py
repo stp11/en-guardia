@@ -38,12 +38,4 @@ celery_app.conf.beat_schedule = {
             "max_total": 1,
         },
     },
-    "test-task-every-5-minutes": {
-        "task": "tasks.episode_tasks.ingest_and_classify_chain",
-        "schedule": crontab(minute="*/5"),
-        "kwargs": {
-            "batch_size": 1,
-            "max_total": 1,
-        },
-    },
 }
