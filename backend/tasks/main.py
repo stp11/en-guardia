@@ -3,12 +3,12 @@ import os
 from celery import Celery
 from celery.schedules import crontab
 
-broker = os.getenv("celery_broker")
+REDIS_URL = os.getenv("REDIS_URL")
 
 celery_app = Celery(
     "en-guardia",
-    broker=broker,
-    backend=broker,
+    broker=REDIS_URL,
+    backend=REDIS_URL,
     include=["tasks.episode_tasks"],
 )
 
