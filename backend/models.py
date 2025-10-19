@@ -113,7 +113,7 @@ class EpisodeAdmin(ModelView, model=Episode):
     name_plural = "Episodis"
     can_create = False
     can_edit = True
-    can_delete = False
+    can_delete = True
     can_view_details = True
 
     column_list = [

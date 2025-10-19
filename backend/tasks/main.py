@@ -30,7 +30,7 @@ celery_app.conf.beat_schedule = {
         "task": "tasks.episode_tasks.ingest_and_classify_chain",
         "schedule": crontab(
             day_of_week=[0, 6],
-            hour=16,
+            hour=17,
             minute=0,
         ),
         "kwargs": {
