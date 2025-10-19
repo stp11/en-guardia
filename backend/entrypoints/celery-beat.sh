@@ -15,13 +15,14 @@ else
   echo "Warning: Postgres host not configured, skipping health check"
 fi
 
-# Extract Redis host and port from REDIS_URL (format: redis://host:port/db)
 if [ -n "$REDIS_URL" ]; then
   REDIS_HOSTPORT=$(echo "$REDIS_URL" | sed 's|redis://||' | sed 's|.*@||' | sed 's|/.*||')
   REDIS_HOST=$(echo "$REDIS_HOSTPORT" | cut -d: -f1)
   REDIS_PORT=$(echo "$REDIS_HOSTPORT" | cut -d: -f2)
 
-  if [ -n "$REDIS_HOST" ] && [ -n "$REDIS_PORT" ]; then
+  if echo "$REDIS_HOST" | grep -q "railway.internal"; then
+    echo "Detected Railway private networking, skipping Redis health check"
+  elif [ -n "$REDIS_HOST" ] && [ -n "$REDIS_PORT" ]; then
     echo "Waiting for Redis at $REDIS_HOST:$REDIS_PORT..."
     while ! nc -z "$REDIS_HOST" "$REDIS_PORT"; do
       echo "Redis not ready, sleeping 1s..."
