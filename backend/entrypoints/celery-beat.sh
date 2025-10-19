@@ -1,6 +1,8 @@
 #!/bin/sh
 set -e
 
+cd /app
+
 # Railway provides PGHOST/PGPORT, which are standard Postgres env vars
 if [ -n "$PGHOST" ] && [ -n "$PGPORT" ]; then
   echo "Waiting for Postgres at $PGHOST:$PGPORT..."

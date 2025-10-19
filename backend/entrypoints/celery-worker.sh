@@ -1,6 +1,8 @@
 #!/bin/sh
 set -e
 
+cd /app
+
 # Railway provides PGHOST/PGPORT, which are standard Postgres env vars
 if [ -n "$PGHOST" ] && [ -n "$PGPORT" ]; then
   echo "Waiting for Postgres at $PGHOST:$PGPORT..."
@@ -32,4 +34,4 @@ else
 fi
 
 echo "Starting Celery worker..."
-exec celery -A tasks.main worker --loglevel=info
+exec celery -A tasks.main worker --concurrency=1 --loglevel=info
