@@ -1,5 +1,6 @@
 volumes:
   postgres_data:
+  redis_data:
 
 services:
   backend:
@@ -8,6 +9,7 @@ services:
       dockerfile: ./Dockerfile
       args:
         BUILD_ENVIRONMENT: local
+    entrypoint: /app/entrypoints/start.sh
     env_file:
       - ./backend/.env
     ports:
@@ -29,6 +31,53 @@ services:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  celery-worker:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        BUILD_ENVIRONMENT: local
+    entrypoint: /app/entrypoints/celery-worker.sh
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  celery-beat:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        BUILD_ENVIRONMENT: local
+    entrypoint: /app/entrypoints/celery-beat.sh
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 5s
       retries: 10

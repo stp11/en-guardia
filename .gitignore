@@ -23,3 +23,16 @@ frontend/dist
 
 # Environment variables
 .env
+
+# Backend
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Celery
+celerybeat-schedule
+celerybeat-schedule.db
+celerybeat-schedule.*

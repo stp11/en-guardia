@@ -12,3 +12,5 @@ openai==1.107.2
 python-slugify==8.0.4
 sqladmin==0.21.0
 itsdangerous==2.2.0
+celery[redis]==5.4.0
+redis==5.2.0
