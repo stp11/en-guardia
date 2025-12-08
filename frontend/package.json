@@ -7,14 +7,14 @@
     "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",
-	  "lint": "eslint . --ext .ts,.svelte --max-warnings=0 --no-warn-ignored",
+    "lint": "eslint . --ext .ts,.svelte --max-warnings=0 --no-warn-ignored",
     "lint:fix": "bun run lint -- --fix",
     "lint:fix:test": "bun run lint:fix && bun run test",
-	  "lint:staged": "eslint --ext .ts,.svelte --max-warnings=0 --fix --no-warn-ignored",
+    "lint:staged": "eslint --ext .ts,.svelte --max-warnings=0 --fix --no-warn-ignored",
     "prepare": "svelte-kit sync || echo ''",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-	  "prettier:fix": "prettier --write src/ *[.js,.ts]",
+    "prettier:fix": "prettier --write src/ *[.js,.ts]",
     "prettier:check": "prettier --check src/",
     "test:unit": "vitest",
     "test": "npm run test:unit -- --run",
@@ -56,6 +56,7 @@
   },
   "dependencies": {
     "@hey-api/client-fetch": "^0.13.1",
+    "@sveltejs/adapter-static": "^3.0.10",
     "@tanstack/svelte-query": "^5.83.0"
   },
   "browserslist": {
