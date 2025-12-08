@@ -19,7 +19,8 @@ const config = {
       fallback: "200.html",
     }),
     prerender: {
-      entries: ["*"],
+      handleHttpError: "ignore",
+      handleMissingId: "ignore",
     },
   },
 };
