@@ -171,16 +171,19 @@ export type GetEpisodesApiEpisodesGetData = {
         order?: string;
         /**
          * Categories
+         *
          * Comma-separated list of category IDs
          */
         categories?: string;
         /**
          * Page
+         *
          * Page number
          */
         page?: number;
         /**
          * Size
+         *
          * Page size
          */
         size?: number;
@@ -216,11 +219,13 @@ export type GetCategoriesApiCategoriesGetData = {
         type?: CategoryType;
         /**
          * Page
+         *
          * Page number
          */
         page?: number;
         /**
          * Size
+         *
          * Page size
          */
         size?: number;

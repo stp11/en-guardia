@@ -145,7 +145,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground min-h-dvh font-geist font-light;
+    @apply bg-background text-foreground font-geist min-h-dvh font-light;
   }
 
   input[type="search"]::-webkit-search-cancel-button {

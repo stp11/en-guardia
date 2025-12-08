@@ -1,31 +1,36 @@
-// eslint.config.js
-// @ts-check
+import { includeIgnoreFile } from "@eslint/compat";
 import js from "@eslint/js";
 import prettier from "eslint-config-prettier";
 import svelte from "eslint-plugin-svelte";
+import { defineConfig } from "eslint/config";
 import globals from "globals";
-import tseslint from "typescript-eslint";
+import { fileURLToPath } from "node:url";
+import ts from "typescript-eslint";
 
 import svelteConfig from "./svelte.config.js";
 
-export default [
-  // 1. Global ignores
-  {
-    ignores: ["build/", ".svelte-kit/", "dist/", "**/*.css", "src/client/**"],
-  },
+const gitignorePath = fileURLToPath(new URL("../.gitignore", import.meta.url));
 
+export default defineConfig(
+  includeIgnoreFile(gitignorePath),
   js.configs.recommended,
-  ...tseslint.configs.recommended,
+  ...ts.configs.recommended,
   ...svelte.configs.recommended,
-
-  // // 4. Svelte configuration for .svelte files
-  // ...svelte.configs["flat/recommended"],
-  // ...svelte.configs["flat/typescript"],
+  prettier,
+  ...svelte.configs.prettier,
+  {
+    ignores: ["src/client/**", "src/lib/components/ui/**"],
+  },
   {
     languageOptions: {
-      globals: {
-        ...globals.browser,
-      },
+      globals: { ...globals.browser, ...globals.node },
+    },
+    rules: {
+      // typescript-eslint strongly recommend that you do not use the no-undef lint rule on TypeScript projects.
+      // see: https://typescript-eslint.io/troubleshooting/faqs/eslint/#i-get-errors-from-the-no-undef-rule-about-global-variables-not-being-defined-even-though-there-are-no-typescript-errors
+      "no-undef": "off",
+      // In SvelteKit 2, regular anchor tags with href work fine for internal navigation
+      "svelte/no-navigation-without-resolve": "off",
     },
   },
   {
@@ -33,26 +38,10 @@ export default [
     languageOptions: {
       parserOptions: {
         projectService: true,
-        extraFileExtensions: [".svelte"], // Add support for additional file extensions, such as .svelte
-        parser: tseslint.parser,
-        // We recommend importing and specifying svelte.config.js.
-        // By doing so, some rules in eslint-plugin-svelte will automatically read the configuration and adjust their behavior accordingly.
-        // While certain Svelte settings may be statically loaded from svelte.config.js even if you don’t specify it,
-        // explicitly specifying it ensures better compatibility and functionality.
+        extraFileExtensions: [".svelte"],
+        parser: ts.parser,
         svelteConfig,
       },
     },
-  },
-
-  // 5. Prettier configuration to disable formatting rules.
-  // THIS MUST BE THE LAST ONE IN THE ARRAY.
-  prettier,
-
-  // 6. Your custom rule overrides
-  {
-    rules: {
-      "@typescript-eslint/no-namespace": "off",
-      // You can add more Svelte or TS rule overrides here
-    },
-  },
-];
+  }
+);

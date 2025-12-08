@@ -1,1 +1,6 @@
+# Package Managers
+bun.lock
+
+# Miscellaneous
+/static/
 src/client

@@ -6,7 +6,25 @@
   "semi": true,
   "arrowParens": "always",
   "printWidth": 100,
-  "plugins": ["prettier-plugin-svelte", "@trivago/prettier-plugin-sort-imports"],
+  "plugins": [
+    "prettier-plugin-svelte",
+    "prettier-plugin-tailwindcss",
+    "@trivago/prettier-plugin-sort-imports"
+  ],
+  "overrides": [
+    {
+      "files": "*.svelte",
+      "options": {
+        "parser": "svelte"
+      }
+    },
+    {
+      "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+      "options": {
+        "parser": "typescript"
+      }
+    }
+  ],
   "importOrder": ["^svelte", "<THIRD_PARTY_MODULES>", "^client", "^lib", "^[./]"],
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true
