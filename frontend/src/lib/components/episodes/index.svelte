@@ -13,7 +13,7 @@
   } from "@tanstack/table-core";
 
   import {
-    type CategoryBase,
+    type Category,
     type CategoryType,
     getCategoriesApiCategoriesGet,
     getEpisodesApiEpisodesGet,
@@ -77,7 +77,6 @@
     enableRowSelection: true,
     onSortingChange: handleSortingChange,
     onPaginationChange: handlePaginationChange,
-    onRowSelectionChange: handleRowSelectionChange,
     pageCount: $query?.data?.data?.pages ?? 0,
     state: {
       sorting: $sorting,
@@ -99,12 +98,6 @@
   const handleSortingChange = (state: Updater<SortingState>) => {
     const newSorting = typeof state === "function" ? state(table.getState().sorting) : state;
     sorting.set(newSorting as SortingState);
-  };
-
-  const handleRowSelectionChange = (state: Updater<RowSelectionState>) => {
-    const newRowSelection =
-      typeof state === "function" ? state(table.getState().rowSelection) : state;
-    rowSelection.set(newRowSelection as RowSelectionState);
   };
 
   const handleCategoriesChange = (type: CategoryType, newCategories: string[]) => {
@@ -161,28 +154,31 @@
     initialPageParam: 1,
   });
 
-  const mapCategoriesDataToOptions = (category: CategoryBase[]) => {
+  const mapCategoriesDataToOptions = (category: Category[]) => {
     return category.map(({ id, name }) => ({ value: String(id), label: name }));
   };
 
   const locations = derived(
     locationsQuery,
     ($locationsQuery) =>
-      $locationsQuery?.data?.pages.flatMap((page) => mapCategoriesDataToOptions(page.data.items)) ??
-      []
+      $locationsQuery?.data?.pages.flatMap((page) =>
+        mapCategoriesDataToOptions(page?.data?.items ?? [])
+      ) ?? []
   );
 
   const topics = derived(
     topicsQuery,
     ($topicsQuery) =>
-      $topicsQuery?.data?.pages.flatMap((page) => mapCategoriesDataToOptions(page.data.items)) ?? []
+      $topicsQuery?.data?.pages.flatMap((page) =>
+        mapCategoriesDataToOptions(page?.data?.items ?? [])
+      ) ?? []
   );
 
   const characters = derived(
     charactersQuery,
     ($charactersQuery) =>
       $charactersQuery?.data?.pages.flatMap((page) =>
-        mapCategoriesDataToOptions(page.data.items)
+        mapCategoriesDataToOptions(page?.data?.items ?? [])
       ) ?? []
   );
 
@@ -190,7 +186,7 @@
     timePeriodsQuery,
     ($timePeriodsQuery) =>
       $timePeriodsQuery?.data?.pages.flatMap((page) =>
-        mapCategoriesDataToOptions(page.data.items)
+        mapCategoriesDataToOptions(page?.data?.items ?? [])
       ) ?? []
   );
 
@@ -299,16 +295,21 @@
           </Table.Row>
         {:else}
           {#each table.getRowModel().rows as row (row.id)}
-            <Table.Row
-              data-state={row.getIsSelected() && "selected"}
-              onclick={() =>
-                handleRowSelectionChange((prev) => ({ ...prev, [row.id]: !row.getIsSelected() }))}
-            >
+            <Table.Row data-state={row.getIsSelected() && "selected"} class="relative">
               {#each row.getVisibleCells() as cell (cell.id)}
                 <Table.Cell style={`width: ${cell.column.getSize()}px`}>
                   <FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
                 </Table.Cell>
               {/each}
+              <!-- <Table.Cell>
+                <a
+                  href={`/episodes/${row.original.id}`}
+                  aria-label="Ves a l'episodi"
+                  class="absolute top-0 left-0 w-full h-full"
+                >
+                  <span class="sr-only">Ves a l'episodi</span>
+                </a>
+              </Table.Cell> -->
             </Table.Row>
           {:else}
             <Table.Row>

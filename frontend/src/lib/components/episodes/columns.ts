@@ -1,13 +1,12 @@
 import { createRawSnippet } from "svelte";
 
+import { renderSnippet } from "$lib/components/ui/data-table/render-helpers.js";
 import { AudioLinesIcon, CalendarIcon, TagsIcon, TextAlignJustifyIcon } from "@lucide/svelte";
 import type { ColumnDef } from "@tanstack/table-core";
 
 import type { EpisodeWithCategories } from "client";
 
 import { capitalize, getCategoryStyles } from "lib/utils.js";
-
-import { renderSnippet } from "../ui/data-table/render-helpers";
 
 export const columns: ColumnDef<EpisodeWithCategories>[] = [
   {
@@ -31,8 +30,7 @@ export const columns: ColumnDef<EpisodeWithCategories>[] = [
     enableSorting: false,
     cell: ({ row }) => {
       const descriptionCellSnippet = createRawSnippet(() => ({
-        render: () =>
-          `<div class="pr-8 ${!row.getIsSelected() && "line-clamp-3"}">${row.original.description ?? ""}</div>`,
+        render: () => `<div class="pr-8 line-clamp-3">${row.original.description ?? ""}</div>`,
       }));
       return renderSnippet(descriptionCellSnippet, row.original.description);
     },
