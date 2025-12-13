@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { GetCategoriesApiCategoriesGetData, GetCategoriesApiCategoriesGetErrors, GetCategoriesApiCategoriesGetResponses, GetEpisodesApiEpisodesGetData, GetEpisodesApiEpisodesGetErrors, GetEpisodesApiEpisodesGetResponses } from './types.gen';
+import type { GetCategoriesApiCategoriesGetData, GetCategoriesApiCategoriesGetErrors, GetCategoriesApiCategoriesGetResponses, GetEpisodeApiEpisodesIdGetData, GetEpisodeApiEpisodesIdGetErrors, GetEpisodeApiEpisodesIdGetResponses, GetEpisodesApiEpisodesGetData, GetEpisodesApiEpisodesGetErrors, GetEpisodesApiEpisodesGetResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -24,6 +24,16 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
 export const getEpisodesApiEpisodesGet = <ThrowOnError extends boolean = false>(options?: Options<GetEpisodesApiEpisodesGetData, ThrowOnError>) => {
     return (options?.client ?? client).get<GetEpisodesApiEpisodesGetResponses, GetEpisodesApiEpisodesGetErrors, ThrowOnError>({
         url: '/api/episodes',
+        ...options
+    });
+};
+
+/**
+ * Get Episode
+ */
+export const getEpisodeApiEpisodesIdGet = <ThrowOnError extends boolean = false>(options: Options<GetEpisodeApiEpisodesIdGetData, ThrowOnError>) => {
+    return (options.client ?? client).get<GetEpisodeApiEpisodesIdGetResponses, GetEpisodeApiEpisodesIdGetErrors, ThrowOnError>({
+        url: '/api/episodes/{id}',
         ...options
     });
 };

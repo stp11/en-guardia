@@ -6,7 +6,7 @@ import type { ColumnDef } from "@tanstack/table-core";
 
 import type { EpisodeWithCategories } from "client";
 
-import { capitalize, getCategoryStyles } from "lib/utils.js";
+import { capitalize, getCategoryStyles } from "lib/utils";
 
 export const columns: ColumnDef<EpisodeWithCategories>[] = [
   {

@@ -71,6 +71,10 @@ class CategoriesRepository(ICategoriesRepository):
 
 class IEpisodesRepository(ABC):
     @abstractmethod
+    def get_episode_by_id(self, id: int) -> Episode | None:
+        pass
+
+    @abstractmethod
     def get_episodes_query(self, search: str | None, order: str) -> Select:
         pass
 
@@ -109,6 +113,13 @@ class EpisodesRepository(IEpisodesRepository):
             )
 
         return query
+
+    def get_episode_by_id(self, id: int) -> Episode:
+        return self.db_session.exec(
+            select(Episode)
+            .where(Episode.id == id)
+            .options(selectinload(Episode.categories))
+        ).first()
 
     def save_episode(self, episode: Episode) -> Episode:
         return self.db_session.merge(episode)

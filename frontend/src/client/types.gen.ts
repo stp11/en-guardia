@@ -209,6 +209,38 @@ export type GetEpisodesApiEpisodesGetResponses = {
 
 export type GetEpisodesApiEpisodesGetResponse = GetEpisodesApiEpisodesGetResponses[keyof GetEpisodesApiEpisodesGetResponses];
 
+export type GetEpisodeApiEpisodesIdGetData = {
+    body?: never;
+    path: {
+        /**
+         * Id
+         *
+         * Episode ID
+         */
+        id: number;
+    };
+    query?: never;
+    url: '/api/episodes/{id}';
+};
+
+export type GetEpisodeApiEpisodesIdGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetEpisodeApiEpisodesIdGetError = GetEpisodeApiEpisodesIdGetErrors[keyof GetEpisodeApiEpisodesIdGetErrors];
+
+export type GetEpisodeApiEpisodesIdGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: EpisodeWithCategories;
+};
+
+export type GetEpisodeApiEpisodesIdGetResponse = GetEpisodeApiEpisodesIdGetResponses[keyof GetEpisodeApiEpisodesIdGetResponses];
+
 export type GetCategoriesApiCategoriesGetData = {
     body?: never;
     path?: never;

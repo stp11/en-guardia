@@ -91,3 +91,19 @@ class TestEpisodesRepository:
         assert results[0].categories[0].name == "Guerra Civil"
         assert results[1].title == "Episodi sobre la Guerra Civil"
         assert results[1].categories[0].name == "Guerra del Vietnam"
+
+    def test_repository_get_episode_by_id(self, db_session: Session):
+        db_session.add_all(self.episodes)
+        db_session.commit()
+        repo = EpisodesRepository(session=db_session)
+
+        episode = repo.get_episode_by_id(1)
+        assert episode.title == "Episodi sobre Grecia"
+
+    def test_repository_get_episode_by_id_not_found(self, db_session: Session):
+        db_session.add_all(self.episodes)
+        db_session.commit()
+        repo = EpisodesRepository(session=db_session)
+
+        episode = repo.get_episode_by_id(4)
+        assert episode is None

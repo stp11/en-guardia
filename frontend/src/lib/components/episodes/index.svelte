@@ -301,15 +301,15 @@
                   <FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
                 </Table.Cell>
               {/each}
-              <!-- <Table.Cell>
+              <Table.Cell>
                 <a
-                  href={`/episodes/${row.original.id}`}
+                  href={`/episodis/${row.original.id}/${row.original.slug}`}
                   aria-label="Ves a l'episodi"
                   class="absolute top-0 left-0 w-full h-full"
                 >
                   <span class="sr-only">Ves a l'episodi</span>
                 </a>
-              </Table.Cell> -->
+              </Table.Cell>
             </Table.Row>
           {:else}
             <Table.Row>
