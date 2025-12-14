@@ -26,7 +26,7 @@ class EpisodesService:
             search=search, order=order, categories=category_list
         )
 
-    def get_episode_by_id(self, id: int) -> Episode:
+    def get_episode_by_id(self, id: int) -> Episode | None:
         return self.episodes_repository.get_episode_by_id(id)
 
     def _parse_categories(self, categories_str: str) -> list[int]:
