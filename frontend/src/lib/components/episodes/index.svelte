@@ -19,6 +19,7 @@
     getEpisodesApiEpisodesGet,
   } from "client";
 
+  import AppHero from "lib/components/app-hero.svelte";
   import { Button } from "lib/components/ui/button";
   import { FlexRender, createSvelteTable } from "lib/components/ui/data-table";
   import DataTableHeader from "lib/components/ui/data-table/data-table-header.svelte";
@@ -32,6 +33,7 @@
 
   const searchQuery = writable("");
   const page = writable(1);
+  const pageSize = writable(20);
   const categories = writable<Record<CategoryType, string[]>>({
     topic: [],
     character: [],
@@ -46,21 +48,19 @@
     return column.desc ? "desc" : "asc";
   });
 
-  const pageSize = 25;
-
   const debouncedSearch = debounce((value: string) => {
     searchQuery.set(value as string);
     page.set(1); // Reset page when search changes
   }, 300);
 
   $: query = createQuery({
-    queryKey: ["episodes", $searchQuery, $page, $order, $categories],
+    queryKey: ["episodes", $searchQuery, $page, $pageSize, $order, $categories],
     queryFn: () =>
       getEpisodesApiEpisodesGet({
         query: {
           search: $searchQuery,
           page: $page,
-          size: pageSize,
+          size: $pageSize,
           order: $order ? $order : undefined,
           categories: Object.values($categories).flat().join(","),
         },
@@ -80,7 +80,7 @@
     pageCount: $query?.data?.data?.pages ?? 0,
     state: {
       sorting: $sorting,
-      pagination: { pageIndex: $page - 1, pageSize },
+      pagination: { pageIndex: $page - 1, pageSize: $pageSize },
       rowSelection: $rowSelection,
     },
     defaultColumn: {
@@ -93,6 +93,7 @@
     const newPagination =
       typeof pagination === "function" ? pagination(table.getState().pagination) : pagination;
     page.set(newPagination.pageIndex + 1);
+    pageSize.set(newPagination.pageSize);
   };
 
   const handleSortingChange = (state: Updater<SortingState>) => {
@@ -223,6 +224,7 @@
 </script>
 
 <div class="xl:max-w-screen-xl 2xl:mx-auto">
+  <AppHero />
   <div class="flex justify-between items-center mb-4">
     <div class="flex gap-2">
       <div class="relative">
@@ -271,9 +273,8 @@
         </Button>
       {/if}
     </div>
-    <DataTablePagination {table} />
   </div>
-  <div class="overflow-hidden rounded-md border shadow-xs">
+  <div class="overflow-hidden rounded-md border shadow-xs mb-5">
     <Table.Root>
       <Table.Header>
         {#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
@@ -322,4 +323,5 @@
       </Table.Body>
     </Table.Root>
   </div>
+  <DataTablePagination {table} />
 </div>

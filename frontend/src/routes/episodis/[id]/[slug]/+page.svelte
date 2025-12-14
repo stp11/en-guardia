@@ -9,7 +9,7 @@
 {#if data.episode}
   {@const episode = data.episode}
 
-  <article class="container mx-auto max-w-7xl">
+  <article class="container mx-auto max-w-7xl pt-8">
     <div class="flex flex-col lg:flex-row items-start gap-8">
       <!-- Video section -->
       <div class="w-full lg:w-1/2 aspect-video rounded-xl overflow-hidden shadow-sm bg-black">
@@ -25,7 +25,7 @@
       <!-- Content section -->
       <div class="flex-1 w-full lg:w-1/2 lg:max-w-prose space-y-2 md:space-y-4">
         <header class="space-y-2">
-          <h1 class="text-2xl md:text-3xl font-semibold leading-tight">
+          <h1 class="text-2xl md:text-3xl font-spline-sans">
             {episode.title}
           </h1>
 

@@ -21,6 +21,11 @@
   src: url("assets/fonts/Geist-Light.ttf") format("truetype");
   font-weight: 300;
 }
+@font-face {
+  font-family: "Spline Sans";
+  src: url("assets/fonts/SplineSans-Bold.ttf") format("truetype");
+  font-weight: 700;
+}
 
 :root {
   --radius: 0.625rem;
@@ -133,6 +138,7 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --font-geist: "Geist", sans-serif;
+  --font-spline-sans: "Spline Sans", sans-serif;
 
   --color-primary-violet: var(--primary-violet);
   --color-primary-brown: var(--primary-brown);
