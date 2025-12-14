@@ -69,7 +69,12 @@ class Episode(SQLModel, table=True):
     published_at: datetime | None = Field(default=None, index=True)
 
     categories: list[Category] = Relationship(
-        back_populates="episodes", link_model=EpisodeCategory
+        back_populates="episodes",
+        link_model=EpisodeCategory,
+        sa_relationship_kwargs={
+            "order_by": "Category.type, Category.name",
+            "lazy": "selectin",
+        },
     )
 
     def __str__(self) -> str:

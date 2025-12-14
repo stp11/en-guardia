@@ -249,18 +249,18 @@
         onSelect={(newCategories) => handleCategoriesChange("topic", newCategories)}
       />
       <Filter
-        label="Personatge"
-        type="character"
-        items={$characters}
-        selectedCategories={$categories.character}
-        onSelect={(newCategories) => handleCategoriesChange("character", newCategories)}
-      />
-      <Filter
         label="Localització"
         type="location"
         items={$locations}
         selectedCategories={$categories.location}
         onSelect={(newCategories) => handleCategoriesChange("location", newCategories)}
+      />
+      <Filter
+        label="Personatge"
+        type="character"
+        items={$characters}
+        selectedCategories={$categories.character}
+        onSelect={(newCategories) => handleCategoriesChange("character", newCategories)}
       />
       <Filter
         label="Època"
