@@ -293,6 +293,7 @@
                 <DataTableHeader {table} {header} />
               </Table.Head>
             {/each}
+            <Table.Head aria-hidden="true"></Table.Head>
           </Table.Row>
         {/each}
       </Table.Header>

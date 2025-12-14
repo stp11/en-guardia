@@ -30,7 +30,7 @@ export const columns: ColumnDef<EpisodeWithCategories>[] = [
     enableSorting: false,
     cell: ({ row }) => {
       const descriptionCellSnippet = createRawSnippet(() => ({
-        render: () => `<div class="pr-8 line-clamp-3">${row.original.description ?? ""}</div>`,
+        render: () => `<div class="line-clamp-3">${row.original.description ?? ""}</div>`,
       }));
       return renderSnippet(descriptionCellSnippet, row.original.description);
     },
@@ -41,7 +41,7 @@ export const columns: ColumnDef<EpisodeWithCategories>[] = [
   {
     accessorKey: "categories",
     header: "Categories",
-    size: 250,
+    size: 350,
     enableSorting: false,
     cell: ({ row }) => {
       const categoriesCellSnippet = createRawSnippet(() => ({

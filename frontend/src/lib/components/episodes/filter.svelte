@@ -57,7 +57,7 @@
       </Button>
     {/snippet}
   </PopoverTrigger>
-  <PopoverContent class="w-[200px] p-0">
+  <PopoverContent class="w-fit max-w-72 p-0">
     <Command>
       <CommandInput placeholder="Cerca..." />
       <CommandList>
