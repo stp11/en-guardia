@@ -5,7 +5,6 @@ from sqlmodel import Session
 
 from database import get_session
 from dependencies import get_categories_service, get_episodes_service
-from logger import logger
 from models import Category, CategoryType, EpisodeWithCategories
 from services import CategoriesService, EpisodesService
 
@@ -38,14 +37,9 @@ def get_episode(
     id: int = Path(..., description="Episode ID"),
     service: EpisodesService = Depends(get_episodes_service),
 ):
-    logger.info(f"Fetching episode with id: {id}")
     episode = service.get_episode_by_id(id)
     if not episode:
-        logger.warning(f"Episode with id {id} not found in database")
         raise HTTPException(status_code=404, detail="Episode not found")
-    logger.info(
-        f"Successfully retrieved episode: {episode.id} - {episode.title}"
-    )
     return episode
 
 

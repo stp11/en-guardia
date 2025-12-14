@@ -114,7 +114,7 @@ class EpisodesRepository(IEpisodesRepository):
 
         return query
 
-    def get_episode_by_id(self, id: int) -> Episode | None:
+    def get_episode_by_id(self, id: int) -> Episode:
         return self.db_session.exec(
             select(Episode)
             .where(Episode.id == id)
