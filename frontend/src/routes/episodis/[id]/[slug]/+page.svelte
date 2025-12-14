@@ -9,7 +9,7 @@
 {#if data.episode}
   {@const episode = data.episode}
 
-  <article class="container mx-auto max-w-7xl pt-8">
+  <article class="container mx-auto max-w-7xl pt-2 sm:pt-4 lg:pt-6">
     <div class="flex flex-col lg:flex-row items-start gap-8">
       <!-- Video section -->
       <div class="w-full lg:w-1/2 aspect-video rounded-xl overflow-hidden shadow-sm bg-black">

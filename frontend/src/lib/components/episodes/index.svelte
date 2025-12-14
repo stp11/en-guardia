@@ -225,19 +225,22 @@
 
 <div class="xl:max-w-screen-xl 2xl:mx-auto">
   <AppHero />
-  <div class="flex justify-between items-center mb-4">
-    <div class="flex gap-2">
-      <div class="relative">
+  <div class="mb-6 space-y-4">
+    <!-- Search (primary) -->
+    <div class="flex justify-center">
+      <div class="relative w-full max-w-xl">
         <Input
           type="search"
-          class="w-xs pl-8"
+          class="w-full pl-9 h-12"
           placeholder="Cerca un episodi"
           oninput={(e) => debouncedSearch(e.currentTarget.value)}
         />
-        <div class="absolute left-0 top-1/2 -translate-y-1/2 pl-2">
-          <Search class="w-4 h-4" />
-        </div>
+        <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
       </div>
+    </div>
+
+    <!-- Filters (secondary) -->
+    <div class="flex flex-wrap items-center gap-4 justify-center px-3 py-2">
       <Filter
         label="Temàtica"
         type="topic"
@@ -266,21 +269,27 @@
         selectedCategories={$categories.time_period}
         onSelect={(newCategories) => handleCategoriesChange("time_period", newCategories)}
       />
+
       {#if hasCategories}
-        <Button variant="ghost" onclick={clearCategories}>
-          <Trash2Icon />
+        <Button variant="ghost" onclick={clearCategories} class="font-light">
+          <Trash2Icon class="size-3.5" />
           Neteja filtres
         </Button>
       {/if}
     </div>
   </div>
+
   <div class="overflow-hidden rounded-md border shadow-xs mb-5">
     <Table.Root>
       <Table.Header>
         {#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
           <Table.Row>
             {#each headerGroup.headers as header (header.id)}
-              <Table.Head colspan={header.colSpan} style={`width: ${header.getSize()}px`}>
+              <Table.Head
+                colspan={header.colSpan}
+                style={`width: ${header.getSize()}px`}
+                class="h-11"
+              >
                 <DataTableHeader {table} {header} />
               </Table.Head>
             {/each}
@@ -306,9 +315,9 @@
                 <a
                   href={`/episodis/${row.original.id}/${row.original.slug}`}
                   aria-label="Ves a l'episodi"
-                  class="absolute top-0 left-0 w-full h-full"
+                  class="absolute top-0 left-0 w-full h-full outline-offset-[-2px]"
                 >
-                  <span class="sr-only">Ves a l'episodi</span>
+                  <span class="sr-only">Ves a l'episodi {row.original.title}</span>
                 </a>
               </Table.Cell>
             </Table.Row>

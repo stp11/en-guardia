@@ -36,7 +36,7 @@
       </SelectContent>
     </Select>
   </div>
-  <div class="flex w-[105px] items-center justify-center text-sm font-medium">
+  <div class="flex w-fit items-center justify-center text-sm font-medium">
     Pàgina {currentPage} de {pageCount}
   </div>
   <div class="flex items-center space-x-2">

@@ -14,7 +14,7 @@
   ></div>
   <Header />
   <div class="flex flex-col min-h-dvh">
-    <main class="flex flex-col flex-grow p-6 md:pt-2">
+    <main class="flex flex-col flex-grow pt-2 p-6 md:pt-6">
       {@render children()}
     </main>
     <!-- <div class="relative">
