@@ -24,3 +24,7 @@ class TestEpisodesService:
     def test_episodes_service_calls_repository_with_categories(self):
         result = self.service._parse_categories(categories_str="1,2,3")
         assert result == [1, 2, 3]
+
+    def test_episodes_service_get_episode_by_id(self):
+        self.service.get_episode_by_id(id=1)
+        self.mock_repo.get_episode_by_id.assert_called_once_with(1)

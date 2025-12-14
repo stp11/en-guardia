@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlmodel import Session
@@ -28,6 +28,19 @@ def get_episodes(
         search=search, order=order, categories=categories
     )
     return paginate(session, query)
+
+
+@router.get(
+    "/episodes/{id}", tags=["episodis"], response_model=EpisodeWithCategories
+)
+def get_episode(
+    id: int = Path(..., description="Episode ID"),
+    service: EpisodesService = Depends(get_episodes_service),
+):
+    episode = service.get_episode_by_id(id)
+    if not episode:
+        raise HTTPException(status_code=404, detail="Episode not found")
+    return episode
 
 
 @router.get("/categories", tags=["categories"], response_model=Page[Category])

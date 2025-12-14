@@ -3,7 +3,7 @@
   import { Button } from "lib/components/ui/button";
 </script>
 
-<footer class="px-10 text-sm">
+<footer class="px-6 md:px-10 text-sm">
   <div class="border-t py-4 flex justify-between items-center gap-4 xl:max-w-screen-xl 2xl:mx-auto">
     <div class="ml-auto">
       <Button

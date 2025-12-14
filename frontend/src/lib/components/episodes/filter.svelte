@@ -41,7 +41,7 @@
 <Popover>
   <PopoverTrigger>
     {#snippet child({ props })}
-      <Button variant="outline" {...props} class="justify-between font-normal" role="combobox">
+      <Button variant="outline" {...props} class="justify-between font-light" role="combobox">
         {label}
         {#if localSelectedCategories.length > 0}
           <span

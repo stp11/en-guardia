@@ -20,20 +20,22 @@
   {#if header.column.getCanSort()}
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <Button variant="ghost" size="sm" class="flex items-center gap-2">
-          {#if header.column.columnDef.meta?.icon}
-            {@const Icon = header.column.columnDef.meta.icon}
-            <Icon class="shrink-0 size-3.5" />
-          {/if}
-          <FlexRender content={header.column.columnDef.header} context={header.getContext()} />
-          {#if isSorted}
-            {#if isSorted.desc}
-              <ArrowDown />
-            {:else}
-              <ArrowUp />
+        {#snippet child({ props })}
+          <Button {...props} variant="ghost" size="sm" class="flex items-center gap-2">
+            {#if header.column.columnDef.meta?.icon}
+              {@const Icon = header.column.columnDef.meta.icon}
+              <Icon class="shrink-0 size-3.5" />
             {/if}
-          {/if}
-        </Button>
+            <FlexRender content={header.column.columnDef.header} context={header.getContext()} />
+            {#if isSorted}
+              {#if isSorted.desc}
+                <ArrowDown />
+              {:else}
+                <ArrowUp />
+              {/if}
+            {/if}
+          </Button>
+        {/snippet}
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuItem onclick={() => table.setSorting([{ id: header.column.id, desc: false }])}>
