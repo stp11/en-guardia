@@ -7,16 +7,11 @@
       Arxiu no oficial del programa
     </span>
 
-    <h2 class="mt-2 text-2xl md:text-[42px] font-spline-sans">
-      Arxiu de l'En Guàrdia!
-      <!-- <span class="block">
-        les batalles, les aventures, les heroïcitats de la història de Catalunya i del món.
-      </span> -->
-    </h2>
+    <h2 class="mt-2 text-2xl md:text-[42px] font-spline-sans">Arxiu de l'En Guàrdia!</h2>
 
     <p class="text-sm sm:text-base md:text-lg text-gray-600 leading-relaxed">
-      Cerca, filtra i descobreix els episodis del programa de ràdio segons temàtica, personatge,
-      localització o època històrica.
+      Cerca, filtra i descobreix les batalles, les aventures, les heroïcitats de la història de
+      Catalunya i del món.
     </p>
   </div>
 </section>
