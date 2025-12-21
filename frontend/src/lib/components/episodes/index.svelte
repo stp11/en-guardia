@@ -1,6 +1,10 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+  import { SvelteURLSearchParams } from "svelte/reactivity";
   import { derived, writable } from "svelte/store";
 
+  import { goto } from "$app/navigation";
+  import { page as pageStore } from "$app/state";
   import { LoaderCircleIcon, Search, Trash2Icon } from "@lucide/svelte";
   import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
   import {
@@ -31,9 +35,14 @@
   import { columns } from "./columns";
   import Filter from "./filter.svelte";
 
+  const initialPage = 1;
+  const defaultPageSize = 20;
+  const maxPageSize = 50;
+
+  // Initialize stores
   const searchQuery = writable("");
-  const page = writable(1);
-  const pageSize = writable(20);
+  const page = writable(initialPage);
+  const pageSize = writable(defaultPageSize);
   const categories = writable<Record<CategoryType, string[]>>({
     topic: [],
     character: [],
@@ -47,6 +56,80 @@
     if (!column) return "desc";
     return column.desc ? "desc" : "asc";
   });
+
+  // Initialize from URL on mount
+  let isInitialized = false;
+  onMount(() => {
+    const params = pageStore.url.searchParams;
+
+    const urlPage = params.get("page");
+    if (urlPage) {
+      const pageNum = Number.parseInt(urlPage, 10);
+      if (!Number.isNaN(pageNum) && pageNum > 0) {
+        page.set(pageNum);
+      }
+    }
+
+    const urlPageSize = params.get("pageSize");
+    if (urlPageSize) {
+      const size = Number.parseInt(urlPageSize, 10);
+      if (!Number.isNaN(size) && size > 0 && size <= maxPageSize) {
+        pageSize.set(size);
+      }
+    }
+
+    const urlSearch = params.get("search");
+    if (urlSearch) {
+      searchQuery.set(urlSearch);
+    }
+
+    const urlOrder = params.get("order");
+    if (urlOrder) {
+      sorting.set([{ id: "published_at", desc: urlOrder === "desc" }]);
+    }
+
+    isInitialized = true;
+  });
+
+  const updateUrl = debounce(() => {
+    if (!isInitialized) return;
+
+    const params = new SvelteURLSearchParams(pageStore.url.searchParams);
+
+    if ($searchQuery) {
+      params.set("search", $searchQuery);
+    } else {
+      params.delete("search");
+    }
+
+    if ($order !== "desc") {
+      params.set("order", $order);
+    } else {
+      params.delete("order");
+    }
+
+    if ($page !== initialPage) {
+      params.set("page", String($page));
+    } else {
+      params.delete("page");
+    }
+
+    if ($pageSize !== defaultPageSize) {
+      params.set("pageSize", String($pageSize));
+    } else {
+      params.delete("pageSize");
+    }
+
+    goto(`?${params.toString()}`, {
+      replaceState: true,
+      noScroll: true,
+      keepFocus: true,
+    });
+  }, 100);
+
+  $: if (isInitialized && ($page || $pageSize || $searchQuery || $order)) {
+    updateUrl();
+  }
 
   const debouncedSearch = debounce((value: string) => {
     searchQuery.set(value as string);
@@ -233,6 +316,7 @@
           type="search"
           class="w-full pl-9 h-12"
           placeholder="Cerca un episodi"
+          value={$searchQuery}
           oninput={(e) => debouncedSearch(e.currentTarget.value)}
         />
         <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
