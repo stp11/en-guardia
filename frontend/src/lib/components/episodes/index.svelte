@@ -1,6 +1,10 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+  import { SvelteURLSearchParams } from "svelte/reactivity";
   import { derived, writable } from "svelte/store";
 
+  import { goto } from "$app/navigation";
+  import { page as pageStore } from "$app/state";
   import { LoaderCircleIcon, Search, Trash2Icon } from "@lucide/svelte";
   import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
   import {
@@ -31,6 +35,7 @@
   import { columns } from "./columns";
   import Filter from "./filter.svelte";
 
+  // Initialize stores
   const searchQuery = writable("");
   const page = writable(1);
   const pageSize = writable(20);
@@ -47,6 +52,48 @@
     if (!column) return "desc";
     return column.desc ? "desc" : "asc";
   });
+
+  // Initialize from URL on mount
+  let isInitialized = false;
+  onMount(() => {
+    const params = pageStore.url.searchParams;
+
+    const urlPage = params.get("page");
+    if (urlPage) {
+      const pageNum = Number.parseInt(urlPage, 10);
+      if (!Number.isNaN(pageNum) && pageNum > 0) {
+        page.set(pageNum);
+      }
+    }
+
+    const urlPageSize = params.get("pageSize");
+    if (urlPageSize) {
+      const size = Number.parseInt(urlPageSize, 10);
+      if (!Number.isNaN(size) && size > 0 && size <= 50) {
+        pageSize.set(size);
+      }
+    }
+
+    isInitialized = true;
+  });
+
+  const updateUrl = debounce(() => {
+    if (!isInitialized) return;
+
+    const params = new SvelteURLSearchParams(pageStore.url.searchParams);
+    params.set("page", String($page));
+    params.set("pageSize", String($pageSize));
+
+    goto(`?${params.toString()}`, {
+      replaceState: true,
+      noScroll: true,
+      keepFocus: true,
+    });
+  }, 100);
+
+  $: if (isInitialized && ($page || $pageSize)) {
+    updateUrl();
+  }
 
   const debouncedSearch = debounce((value: string) => {
     searchQuery.set(value as string);
