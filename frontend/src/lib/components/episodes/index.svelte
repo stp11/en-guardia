@@ -35,10 +35,14 @@
   import { columns } from "./columns";
   import Filter from "./filter.svelte";
 
+  const initialPage = 1;
+  const defaultPageSize = 20;
+  const maxPageSize = 50;
+
   // Initialize stores
   const searchQuery = writable("");
-  const page = writable(1);
-  const pageSize = writable(20);
+  const page = writable(initialPage);
+  const pageSize = writable(defaultPageSize);
   const categories = writable<Record<CategoryType, string[]>>({
     topic: [],
     character: [],
@@ -69,9 +73,19 @@
     const urlPageSize = params.get("pageSize");
     if (urlPageSize) {
       const size = Number.parseInt(urlPageSize, 10);
-      if (!Number.isNaN(size) && size > 0 && size <= 50) {
+      if (!Number.isNaN(size) && size > 0 && size <= maxPageSize) {
         pageSize.set(size);
       }
+    }
+
+    const urlSearch = params.get("search");
+    if (urlSearch) {
+      searchQuery.set(urlSearch);
+    }
+
+    const urlOrder = params.get("order");
+    if (urlOrder) {
+      sorting.set([{ id: "published_at", desc: urlOrder === "desc" }]);
     }
 
     isInitialized = true;
@@ -81,8 +95,30 @@
     if (!isInitialized) return;
 
     const params = new SvelteURLSearchParams(pageStore.url.searchParams);
-    params.set("page", String($page));
-    params.set("pageSize", String($pageSize));
+
+    if ($searchQuery) {
+      params.set("search", $searchQuery);
+    } else {
+      params.delete("search");
+    }
+
+    if ($order !== "desc") {
+      params.set("order", $order);
+    } else {
+      params.delete("order");
+    }
+
+    if ($page !== initialPage) {
+      params.set("page", String($page));
+    } else {
+      params.delete("page");
+    }
+
+    if ($pageSize !== defaultPageSize) {
+      params.set("pageSize", String($pageSize));
+    } else {
+      params.delete("pageSize");
+    }
 
     goto(`?${params.toString()}`, {
       replaceState: true,
@@ -91,7 +127,7 @@
     });
   }, 100);
 
-  $: if (isInitialized && ($page || $pageSize)) {
+  $: if (isInitialized && ($page || $pageSize || $searchQuery || $order)) {
     updateUrl();
   }
 
@@ -280,6 +316,7 @@
           type="search"
           class="w-full pl-9 h-12"
           placeholder="Cerca un episodi"
+          value={$searchQuery}
           oninput={(e) => debouncedSearch(e.currentTarget.value)}
         />
         <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
