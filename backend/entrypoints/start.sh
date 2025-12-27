@@ -9,4 +9,4 @@ echo "Migrations complete."
 
 # Start uvicorn
 echo "Starting uvicorn..."
-exec uvicorn main:app --host 0.0.0.0 --port $PORT
+exec uvicorn main:app --host :: --port ${PORT:-8080}
