@@ -49,3 +49,9 @@ app.add_middleware(
 
 app.include_router(api_router, prefix="/api")
 add_pagination(app)
+
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for Railway and Cloudflare."""
+    return {"status": "healthy"}
