@@ -23,7 +23,7 @@ def get_cloudflare_ip(request: Request):
     return request.headers.get("cf-connecting-ip") or request.client.host
 
 
-limiter = Limiter(key_func=get_cloudflare_ip, default_limits=["100/minute"])
+limiter = Limiter(key_func=get_cloudflare_ip, default_limits=["300/minute"])
 app = FastAPI(
     docs_url="/api/docs",
     redoc_url=None,
