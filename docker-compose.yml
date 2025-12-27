@@ -51,6 +51,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    profiles:
+      - celery
 
   celery-beat:
     build:
@@ -68,6 +70,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    profiles:
+      - celery
 
   redis:
     image: redis:7-alpine
@@ -81,3 +85,5 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    profiles:
+      - celery
