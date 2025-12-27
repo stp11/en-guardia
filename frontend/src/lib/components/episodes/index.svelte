@@ -1,12 +1,11 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { SvelteURLSearchParams } from "svelte/reactivity";
-  import { derived, writable } from "svelte/store";
 
   import { goto } from "$app/navigation";
   import { page as pageStore } from "$app/state";
   import { LoaderCircleIcon, Search, Trash2Icon } from "@lucide/svelte";
-  import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
+  import { createInfiniteQuery, createQuery, keepPreviousData } from "@tanstack/svelte-query";
   import {
     type PaginationState,
     type RowSelectionState,
@@ -40,19 +39,19 @@
   const maxPageSize = 50;
 
   // Initialize stores
-  const searchQuery = writable("");
-  const page = writable(initialPage);
-  const pageSize = writable(defaultPageSize);
-  const categories = writable<Record<CategoryType, string[]>>({
+  let searchQuery = $state("");
+  let page = $state(initialPage);
+  let pageSize = $state(defaultPageSize);
+  let categories = $state<Record<CategoryType, string[]>>({
     topic: [],
     character: [],
     location: [],
     time_period: [],
   });
-  const sorting = writable<SortingState>([]);
-  const rowSelection = writable<RowSelectionState>({});
-  const order = derived(sorting, ($sorting) => {
-    const column = $sorting.find((v) => v.id === "published_at");
+  let sorting = $state<SortingState>([]);
+  let rowSelection = $state<RowSelectionState>({});
+  const order = $derived.by(() => {
+    const column = sorting.find((v) => v.id === "published_at");
     if (!column) return "desc";
     return column.desc ? "desc" : "asc";
   });
@@ -66,7 +65,7 @@
     if (urlPage) {
       const pageNum = Number.parseInt(urlPage, 10);
       if (!Number.isNaN(pageNum) && pageNum > 0) {
-        page.set(pageNum);
+        page = pageNum;
       }
     }
 
@@ -74,18 +73,18 @@
     if (urlPageSize) {
       const size = Number.parseInt(urlPageSize, 10);
       if (!Number.isNaN(size) && size > 0 && size <= maxPageSize) {
-        pageSize.set(size);
+        pageSize = size;
       }
     }
 
     const urlSearch = params.get("search");
     if (urlSearch) {
-      searchQuery.set(urlSearch);
+      searchQuery = urlSearch;
     }
 
     const urlOrder = params.get("order");
     if (urlOrder) {
-      sorting.set([{ id: "published_at", desc: urlOrder === "desc" }]);
+      sorting = [{ id: "published_at", desc: urlOrder === "desc" }];
     }
 
     isInitialized = true;
@@ -96,26 +95,26 @@
 
     const params = new SvelteURLSearchParams(pageStore.url.searchParams);
 
-    if ($searchQuery) {
-      params.set("search", $searchQuery);
+    if (searchQuery) {
+      params.set("search", searchQuery);
     } else {
       params.delete("search");
     }
 
-    if ($order !== "desc") {
-      params.set("order", $order);
+    if (order !== "desc") {
+      params.set("order", order);
     } else {
       params.delete("order");
     }
 
-    if ($page !== initialPage) {
-      params.set("page", String($page));
+    if (page !== initialPage) {
+      params.set("page", String(page));
     } else {
       params.delete("page");
     }
 
-    if ($pageSize !== defaultPageSize) {
-      params.set("pageSize", String($pageSize));
+    if (pageSize !== defaultPageSize) {
+      params.set("pageSize", String(pageSize));
     } else {
       params.delete("pageSize");
     }
@@ -127,74 +126,88 @@
     });
   }, 100);
 
-  $: if (isInitialized && ($page || $pageSize || $searchQuery || $order)) {
-    updateUrl();
-  }
+  $effect(() => {
+    page; // eslint-disable-line @typescript-eslint/no-unused-expressions
+    pageSize; // eslint-disable-line @typescript-eslint/no-unused-expressions
+    searchQuery; // eslint-disable-line @typescript-eslint/no-unused-expressions
+    order; // eslint-disable-line @typescript-eslint/no-unused-expressions
+
+    if (isInitialized) {
+      updateUrl();
+    }
+  });
 
   const debouncedSearch = debounce((value: string) => {
-    searchQuery.set(value as string);
-    page.set(1); // Reset page when search changes
+    searchQuery = value;
+    page = 1; // Reset page when search changes
   }, 300);
 
-  $: query = createQuery({
-    queryKey: ["episodes", $searchQuery, $page, $pageSize, $order, $categories],
-    queryFn: () =>
-      getEpisodesApiEpisodesGet({
-        query: {
-          search: $searchQuery,
-          page: $page,
-          size: $pageSize,
-          order: $order ? $order : undefined,
-          categories: Object.values($categories).flat().join(","),
-        },
-      }),
-  });
+  const handleSortingChange = (state: Updater<SortingState>) => {
+    const newSorting = typeof state === "function" ? state(table.getState().sorting) : state;
+    sorting = newSorting as SortingState;
+  };
 
-  $: table = createSvelteTable({
-    data: $query?.data?.data?.items ?? [],
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    manualSorting: true,
-    manualPagination: true,
-    enableRowSelection: true,
-    onSortingChange: handleSortingChange,
-    onPaginationChange: handlePaginationChange,
-    pageCount: $query?.data?.data?.pages ?? 0,
-    state: {
-      sorting: $sorting,
-      pagination: { pageIndex: $page - 1, pageSize: $pageSize },
-      rowSelection: $rowSelection,
-    },
-    defaultColumn: {
-      size: 300,
-      minSize: 150,
-    },
-  });
+  const handleCategoriesChange = (type: CategoryType, newCategories: string[]) => {
+    categories = {
+      ...categories,
+      [type]: newCategories,
+    };
+    page = 1;
+  };
 
   const handlePaginationChange = (pagination: Updater<PaginationState>) => {
     const newPagination =
       typeof pagination === "function" ? pagination(table.getState().pagination) : pagination;
-    page.set(newPagination.pageIndex + 1);
-    pageSize.set(newPagination.pageSize);
+    page = newPagination.pageIndex + 1;
+    pageSize = newPagination.pageSize;
   };
 
-  const handleSortingChange = (state: Updater<SortingState>) => {
-    const newSorting = typeof state === "function" ? state(table.getState().sorting) : state;
-    sorting.set(newSorting as SortingState);
-  };
+  const categoriesString = $derived.by(() => Object.values(categories).flat().join(","));
 
-  const handleCategoriesChange = (type: CategoryType, newCategories: string[]) => {
-    categories.update((prev) => ({
-      ...prev,
-      [type]: newCategories,
-    }));
-    page.set(1);
-  };
+  const queryData = createQuery(() => {
+    return {
+      queryKey: ["episodes", searchQuery, page, pageSize, order, categoriesString],
+      queryFn: () =>
+        getEpisodesApiEpisodesGet({
+          query: {
+            search: searchQuery,
+            page: page,
+            size: pageSize,
+            order: order || undefined,
+            categories: categoriesString,
+          },
+        }),
+      placeholderData: keepPreviousData,
+    };
+  });
+
+  const table = $derived(
+    createSvelteTable({
+      data: queryData.data?.data?.items ?? [],
+      columns,
+      getCoreRowModel: getCoreRowModel(),
+      getSortedRowModel: getSortedRowModel(),
+      manualSorting: true,
+      manualPagination: true,
+      enableRowSelection: true,
+      onSortingChange: handleSortingChange,
+      onPaginationChange: handlePaginationChange,
+      pageCount: queryData.data?.data?.pages ?? 0,
+      state: {
+        sorting: sorting,
+        pagination: { pageIndex: page - 1, pageSize: pageSize },
+        rowSelection: rowSelection,
+      },
+      defaultColumn: {
+        size: 300,
+        minSize: 150,
+      },
+    })
+  );
 
   const clearCategories = () => {
-    categories.set({ topic: [], character: [], location: [], time_period: [] });
-    page.set(1);
+    categories = { topic: [], character: [], location: [], time_period: [] };
+    page = 1;
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -206,104 +219,106 @@
     return undefined;
   };
 
-  const locationsQuery = createInfiniteQuery({
+  const locationsQuery = createInfiniteQuery(() => ({
     queryKey: ["locations"],
     queryFn: ({ pageParam }) =>
       getCategoriesApiCategoriesGet({ query: { type: "location", page: pageParam } }),
     getNextPageParam,
     initialPageParam: 1,
-  });
+  }));
 
-  const topicsQuery = createInfiniteQuery({
+  const topicsQuery = createInfiniteQuery(() => ({
     queryKey: ["topics"],
     queryFn: ({ pageParam }) =>
       getCategoriesApiCategoriesGet({ query: { type: "topic", page: pageParam } }),
     getNextPageParam,
     initialPageParam: 1,
-  });
+  }));
 
-  const charactersQuery = createInfiniteQuery({
+  const charactersQuery = createInfiniteQuery(() => ({
     queryKey: ["characters"],
     queryFn: ({ pageParam }) =>
       getCategoriesApiCategoriesGet({ query: { type: "character", page: pageParam } }),
     getNextPageParam,
     initialPageParam: 1,
-  });
+  }));
 
-  const timePeriodsQuery = createInfiniteQuery({
+  const timePeriodsQuery = createInfiniteQuery(() => ({
     queryKey: ["timePeriods"],
     queryFn: ({ pageParam }) =>
       getCategoriesApiCategoriesGet({ query: { type: "time_period", page: pageParam } }),
     getNextPageParam,
     initialPageParam: 1,
-  });
+  }));
 
   const mapCategoriesDataToOptions = (category: Category[]) => {
     return category.map(({ id, name }) => ({ value: String(id), label: name }));
   };
 
-  const locations = derived(
-    locationsQuery,
-    ($locationsQuery) =>
-      $locationsQuery?.data?.pages.flatMap((page) =>
+  const locations = $derived.by(
+    () =>
+      locationsQuery.data?.pages.flatMap((page) =>
         mapCategoriesDataToOptions(page?.data?.items ?? [])
       ) ?? []
   );
 
-  const topics = derived(
-    topicsQuery,
-    ($topicsQuery) =>
-      $topicsQuery?.data?.pages.flatMap((page) =>
+  const topics = $derived.by(
+    () =>
+      topicsQuery.data?.pages.flatMap((page) =>
         mapCategoriesDataToOptions(page?.data?.items ?? [])
       ) ?? []
   );
 
-  const characters = derived(
-    charactersQuery,
-    ($charactersQuery) =>
-      $charactersQuery?.data?.pages.flatMap((page) =>
+  const characters = $derived.by(
+    () =>
+      charactersQuery.data?.pages.flatMap((page) =>
         mapCategoriesDataToOptions(page?.data?.items ?? [])
       ) ?? []
   );
 
-  const timePeriods = derived(
-    timePeriodsQuery,
-    ($timePeriodsQuery) =>
-      $timePeriodsQuery?.data?.pages.flatMap((page) =>
+  const timePeriods = $derived.by(
+    () =>
+      timePeriodsQuery.data?.pages.flatMap((page) =>
         mapCategoriesDataToOptions(page?.data?.items ?? [])
       ) ?? []
   );
 
   // Auto-fetch all pages when query loads
-  $: if (
-    $locationsQuery.data &&
-    $locationsQuery.hasNextPage &&
-    !$locationsQuery.isFetchingNextPage
-  ) {
-    $locationsQuery.fetchNextPage();
-  }
+  $effect(() => {
+    if (locationsQuery.data && locationsQuery.hasNextPage && !locationsQuery.isFetchingNextPage) {
+      locationsQuery.fetchNextPage();
+    }
+  });
 
-  $: if ($topicsQuery.data && $topicsQuery.hasNextPage && !$topicsQuery.isFetchingNextPage) {
-    $topicsQuery.fetchNextPage();
-  }
+  $effect(() => {
+    if (topicsQuery.data && topicsQuery.hasNextPage && !topicsQuery.isFetchingNextPage) {
+      topicsQuery.fetchNextPage();
+    }
+  });
 
-  $: if (
-    $charactersQuery.data &&
-    $charactersQuery.hasNextPage &&
-    !$charactersQuery.isFetchingNextPage
-  ) {
-    $charactersQuery.fetchNextPage();
-  }
+  $effect(() => {
+    if (
+      charactersQuery.data &&
+      charactersQuery.hasNextPage &&
+      !charactersQuery.isFetchingNextPage
+    ) {
+      charactersQuery.fetchNextPage();
+    }
+  });
 
-  $: if (
-    $timePeriodsQuery.data &&
-    $timePeriodsQuery.hasNextPage &&
-    !$timePeriodsQuery.isFetchingNextPage
-  ) {
-    $timePeriodsQuery.fetchNextPage();
-  }
+  $effect(() => {
+    if (
+      timePeriodsQuery.data &&
+      timePeriodsQuery.hasNextPage &&
+      !timePeriodsQuery.isFetchingNextPage
+    ) {
+      timePeriodsQuery.fetchNextPage();
+    }
+  });
 
-  $: hasCategories = Object.values($categories).some((categories) => categories.length > 0);
+  const hasCategories = $derived.by(() =>
+    Object.values(categories).some((categories) => categories.length > 0)
+  );
 </script>
 
 <div class="xl:max-w-screen-xl 2xl:mx-auto">
@@ -316,7 +331,7 @@
           type="search"
           class="w-full pl-9 h-12"
           placeholder="Cerca un episodi"
-          value={$searchQuery}
+          value={searchQuery}
           oninput={(e) => debouncedSearch(e.currentTarget.value)}
         />
         <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -328,29 +343,29 @@
       <Filter
         label="Temàtica"
         type="topic"
-        items={$topics}
-        selectedCategories={$categories.topic}
+        items={topics}
+        selectedCategories={categories.topic}
         onSelect={(newCategories) => handleCategoriesChange("topic", newCategories)}
       />
       <Filter
         label="Localització"
         type="location"
-        items={$locations}
-        selectedCategories={$categories.location}
+        items={locations}
+        selectedCategories={categories.location}
         onSelect={(newCategories) => handleCategoriesChange("location", newCategories)}
       />
       <Filter
         label="Personatge"
         type="character"
-        items={$characters}
-        selectedCategories={$categories.character}
+        items={characters}
+        selectedCategories={categories.character}
         onSelect={(newCategories) => handleCategoriesChange("character", newCategories)}
       />
       <Filter
         label="Època"
         type="time_period"
-        items={$timePeriods}
-        selectedCategories={$categories.time_period}
+        items={timePeriods}
+        selectedCategories={categories.time_period}
         onSelect={(newCategories) => handleCategoriesChange("time_period", newCategories)}
       />
 
@@ -382,7 +397,7 @@
         {/each}
       </Table.Header>
       <Table.Body>
-        {#if $query?.isLoading}
+        {#if queryData.isLoading}
           <Table.Row>
             <Table.Cell colspan={columns.length} class="h-24 text-center">
               <LoaderCircleIcon class="animate-spin text-accent-foreground/30 w-full" />
