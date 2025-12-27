@@ -18,8 +18,6 @@ ADMIN_PATH = os.environ.get("ADMIN_PATH", "/admin")
 ADMIN_SECRET_KEY = os.environ.get("ADMIN_SECRET_KEY")
 ORIGINS = os.environ.get("ALLOWED_ORIGINS", "*").split(",")
 
-print(f"ORIGINS: {ORIGINS}")
-
 limiter = Limiter(key_func=get_remote_address, default_limits=["100/minute"])
 app = FastAPI(
     docs_url="/api/docs",
