@@ -321,7 +321,7 @@
   );
 </script>
 
-<div class="xl:max-w-screen-xl 2xl:mx-auto">
+<div class="xl:max-w-screen-xl mx-auto">
   <AppHero />
   <div class="mb-6 space-y-4">
     <!-- Search (primary) -->
