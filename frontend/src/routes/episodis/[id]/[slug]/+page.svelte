@@ -42,7 +42,7 @@
         <hr class="border-gray-200" />
 
         {#if episode.description}
-          <p class="text-sm md:text-base leading-relaxed text-gray-700">
+          <p class="text-base leading-relaxed text-gray-700">
             {episode.description}
           </p>
         {/if}

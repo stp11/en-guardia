@@ -28,14 +28,6 @@
     <main class="flex flex-col flex-grow pt-2 p-6 md:pt-6">
       {@render children()}
     </main>
-    <!-- <div class="relative">
-      <div
-        class="absolute bottom-0 left-0 z-[-1] w-full gradient-background-bottom h-[300px]
-        bg-gradient-to-t from-primary-yellow/15 to-transparent
-        "
-      ></div>
-      <Footer />
-    </div> -->
     <Footer />
   </div>
 </QueryClientProvider>
