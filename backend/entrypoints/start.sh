@@ -7,6 +7,7 @@ echo "Running database migrations..."
 alembic upgrade head
 echo "Migrations complete."
 
-# Start uvicorn
+# Start uvicorn with proxy headers enabled
+# --forwarded-allow-ips="*" trusts X-Forwarded-Proto from Cloudflare for HTTPS detection
 echo "Starting uvicorn..."
-exec uvicorn main:app --host ${HOST:-::} --port ${PORT:-8080}
+exec uvicorn main:app --host ${HOST:-::} --port ${PORT:-8080} --forwarded-allow-ips="*"
