@@ -1,5 +1,6 @@
 <script lang="ts">
   import { ChevronDownIcon } from "@lucide/svelte";
+  import { createVirtualizer } from "@tanstack/svelte-virtual";
 
   import type { CategoryType } from "client";
 
@@ -8,7 +9,6 @@
   import {
     Command,
     CommandEmpty,
-    CommandGroup,
     CommandInput,
     CommandItem,
     CommandList,
@@ -28,6 +28,13 @@
 
   let localSelectedCategories = $derived<string[]>(selectedCategories);
 
+  let searchQuery = $state("");
+  const filteredItems = $derived(
+    searchQuery.trim()
+      ? items.filter((item) => item.label.toLowerCase().includes(searchQuery.trim().toLowerCase()))
+      : items
+  );
+
   const handleSelect = (value: string) => {
     if (localSelectedCategories.includes(value)) {
       localSelectedCategories.splice(localSelectedCategories.indexOf(value), 1);
@@ -36,6 +43,43 @@
     }
     onSelect([...localSelectedCategories]);
   };
+
+  let parentRef = $state<HTMLElement | null>(null);
+  let shouldVirtualize = $derived(items.length > 50);
+
+  const rowVirtualizer = $derived(
+    shouldVirtualize && parentRef
+      ? createVirtualizer({
+          count: filteredItems.length,
+          getScrollElement: () => parentRef,
+          estimateSize: () => 35,
+          overscan: 5,
+        })
+      : null
+  );
+
+  // Scroll to first item when search query changes
+  let prevSearchQuery = $state("");
+
+  $effect(() => {
+    // Only scroll if search query actually changed and virtualizer is ready
+    if (rowVirtualizer && filteredItems.length > 0 && searchQuery !== prevSearchQuery) {
+      prevSearchQuery = searchQuery;
+
+      // Use queueMicrotask to ensure virtualizer is fully initialized after filteredItems update
+      queueMicrotask(() => {
+        // eslint-disable-next-line
+        if (rowVirtualizer && $rowVirtualizer) {
+          try {
+            $rowVirtualizer.scrollToIndex(0, { align: "start" });
+          } catch (e) {
+            // Silently fail if virtualizer isn't ready yet
+            console.debug("Virtualizer not ready for scrolling", e);
+          }
+        }
+      });
+    }
+  });
 </script>
 
 <Popover>
@@ -59,22 +103,50 @@
   </PopoverTrigger>
   <PopoverContent class="w-fit max-w-72 p-0">
     <Command>
-      <CommandInput placeholder="Cerca..." />
-      <CommandList>
+      {#if shouldVirtualize}
+        <CommandInput placeholder="Cerca..." bind:value={searchQuery} />
+      {:else}
+        <CommandInput placeholder="Cerca..." />
+      {/if}
+      <CommandList bind:ref={parentRef}>
         <CommandEmpty class="py-2">No s'han trobat resultats.</CommandEmpty>
-        {#if items.length > 0}
-          <CommandGroup>
-            {#each items as item (item.value)}
-              <CommandItem value={item.label} onSelect={() => handleSelect(item.value)}>
-                <Checkbox
-                  id={item.value}
-                  class={cn(getCheckboxStyles(type), "[&_svg]:stroke-white [&_svg]:stroke-3")}
-                  checked={localSelectedCategories.includes(item.value)}
-                />
-                {item.label}
-              </CommandItem>
-            {/each}
-          </CommandGroup>
+        {#if filteredItems.length > 0}
+          {#if shouldVirtualize && rowVirtualizer}
+            <!-- Virtualized rendering for large lists -->
+            <div class="text-foreground overflow-hidden p-1">
+              <div class="relative w-full" style="height: {$rowVirtualizer!.getTotalSize()}px;">
+                {#each $rowVirtualizer!.getVirtualItems() as virtualItem (virtualItem.key)}
+                  {@const item = filteredItems[virtualItem.index]}
+                  <div
+                    class="absolute top-0 left-0 w-full"
+                    style="height: {virtualItem.size}px; transform: translateY({virtualItem.start}px);"
+                  >
+                    <CommandItem value={item.label} onSelect={() => handleSelect(item.value)}>
+                      <Checkbox
+                        id={item.value}
+                        class={cn(getCheckboxStyles(type), "[&_svg]:stroke-white [&_svg]:stroke-3")}
+                        checked={localSelectedCategories.includes(item.value)}
+                      />
+                      {item.label}
+                    </CommandItem>
+                  </div>
+                {/each}
+              </div>
+            </div>
+          {:else}
+            <div class="text-foreground overflow-hidden p-1">
+              {#each filteredItems as item (item.value)}
+                <CommandItem value={item.label} onSelect={() => handleSelect(item.value)}>
+                  <Checkbox
+                    id={item.value}
+                    class={cn(getCheckboxStyles(type), "[&_svg]:stroke-white [&_svg]:stroke-3")}
+                    checked={localSelectedCategories.includes(item.value)}
+                  />
+                  {item.label}
+                </CommandItem>
+              {/each}
+            </div>
+          {/if}
         {/if}
       </CommandList>
     </Command>
