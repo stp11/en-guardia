@@ -37,7 +37,7 @@ class CategoriesRepository(ICategoriesRepository):
     def get_categories_query(self, type: CategoryType) -> Select:
         return (
             select(Category)
-            .where(Category.type == type)
+            .where(Category.type == type, Category.episodes.any())
             .order_by(Category.name)
         )
 

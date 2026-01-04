@@ -1,6 +1,6 @@
 from sqlmodel import Session
 
-from models import Category, CategoryType
+from models import Category, CategoryType, Episode, EpisodeCategory
 from repositories import CategoriesRepository
 
 
@@ -37,7 +37,13 @@ class TestCategoriesRepository:
         assert len(results) == 3
 
     def test_get_categories_query(self, db_session: Session):
+        episode = Episode(id=1, title="Test Episode")
+        episode_category = EpisodeCategory(
+            episode_id=episode.id, category_id=self.categories[0].id
+        )
         db_session.add_all(self.categories)
+        db_session.add(episode)
+        db_session.add(episode_category)
         db_session.commit()
         repo = CategoriesRepository(session=db_session)
 
