@@ -52,7 +52,7 @@
       ? createVirtualizer({
           count: filteredItems.length,
           getScrollElement: () => parentRef,
-          estimateSize: () => 35,
+          estimateSize: () => 32,
           overscan: 5,
         })
       : null
@@ -101,7 +101,7 @@
       </Button>
     {/snippet}
   </PopoverTrigger>
-  <PopoverContent class="w-fit max-w-72 p-0">
+  <PopoverContent class="w-fit min-w-3xs p-0">
     <Command>
       {#if shouldVirtualize}
         <CommandInput placeholder="Cerca..." bind:value={searchQuery} />
@@ -127,7 +127,12 @@
                         class={cn(getCheckboxStyles(type), "[&_svg]:stroke-white [&_svg]:stroke-3")}
                         checked={localSelectedCategories.includes(item.value)}
                       />
-                      {item.label}
+                      <span
+                        class="text-ellipsis overflow-hidden whitespace-nowrap max-w-xs"
+                        title={item.label}
+                      >
+                        {item.label}
+                      </span>
                     </CommandItem>
                   </div>
                 {/each}
