@@ -152,8 +152,7 @@
                     </td>
                     {% for name in model_view._list_prop_names %}
                     {% set value, formatted_value = model_view.get_list_value(row, name) %}
-                    {% if name in model_view._relation_names %}
-                    {% if is_list( value ) %}
+                    {% if name in model_view._relation_names and is_list(value) and value|length > 0 %}
                     <td class="list-column">
                       {% for elem, formatted_elem in zip(value, formatted_value) %}
                       <span>
@@ -165,9 +164,6 @@
                       </span>
                       {% endfor %}
                     </td>
-                    {% else %}
-                    <td><a href="{{ model_view._url_for_details_with_prop(request, row, name) }}">{{ formatted_value }}</a></td>
-                    {% endif %}
                     {% else %}
                     <td>{{ formatted_value }}</td>
                     {% endif %}
