@@ -1,10 +1,12 @@
 import hashlib
 from datetime import datetime, timezone
 from enum import Enum
+from typing import Any, Callable
 
 from fastapi import Request
 from slugify import slugify
 from sqladmin import ModelView
+from sqlalchemy import Select
 from sqlmodel import TEXT, Column, DateTime, Field, Relationship, SQLModel
 
 
@@ -134,6 +136,8 @@ class EpisodeAdmin(ModelView, model=Episode):
             else "No hi ha categories"
         ),
     }
+    list_template = "sqladmin/custom_list.html"
+    details_template = "sqladmin/custom_details.html"
     column_searchable_list = [Episode.title]
     column_sortable_list = [Episode.published_at]
     column_default_sort = [(Episode.published_at, True)]
@@ -172,6 +176,46 @@ class EpisodeAdmin(ModelView, model=Episode):
     page_size = 25
 
 
+class CategoryWithoutEpisodesFilter:
+    """Custom filter to show categories without episodes"""
+
+    def __init__(
+        self,
+        column: Any = None,
+        title: str | None = None,
+        parameter_name: str | None = None,
+    ):
+        self.column = column
+        self.title = title or "Categories"
+        self.parameter_name = parameter_name or "has_episodes"
+
+    async def lookups(
+        self, request: Request, model: Any, run_query: Callable[[Select], Any]
+    ) -> list[tuple[str, str]]:
+        """Return filter options"""
+        return [
+            ("", "Totes"),
+            ("no", "Sense episodis"),
+            ("yes", "Amb episodis"),
+        ]
+
+    async def get_filtered_query(
+        self, query: Select, value: Any, model: Any
+    ) -> Select:
+        """Apply the filter to the query"""
+        if value == "":
+            return query
+        elif value == "no":
+            # Categories without episodes
+            return query.outerjoin(EpisodeCategory).where(
+                EpisodeCategory.category_id.is_(None)
+            )
+        elif value == "yes":
+            # Categories with episodes
+            return query.join(EpisodeCategory).distinct()
+        return query
+
+
 class CategoryAdmin(ModelView, model=Category):
     name_plural = "Categories"
     can_create = True
@@ -190,9 +234,12 @@ class CategoryAdmin(ModelView, model=Category):
             }.get(model.type.value if model.type else None, "")
         )
     }
+    list_template = "sqladmin/custom_list.html"
+    details_template = "sqladmin/custom_details.html"
     column_searchable_list = [Category.name]
     column_sortable_list = [Category.name, Category.type]
     column_default_sort = [(Category.name, False)]
+    column_filters = [CategoryWithoutEpisodesFilter()]
     column_details_list = [
         Category.name,
         Category.slug,
