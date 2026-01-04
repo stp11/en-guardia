@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -38,6 +39,7 @@ admin = Admin(
     engine=engine,
     authentication_backend=authentication_backend,
     base_url=ADMIN_PATH,
+    templates_dir=str(Path(__file__).parent / "templates"),
 )
 
 admin.add_view(EpisodeAdmin)
