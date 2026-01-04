@@ -232,7 +232,10 @@ class CategoryAdmin(ModelView, model=Category):
                 CategoryType.CHARACTER.value: "Personatge",
                 CategoryType.TIME_PERIOD.value: "Època",
             }.get(model.type.value if model.type else None, "")
-        )
+        ),
+        Category.episodes: lambda model, attribute: (
+            model.episodes if model.episodes else "-"
+        ),
     }
     list_template = "sqladmin/custom_list.html"
     details_template = "sqladmin/custom_details.html"
