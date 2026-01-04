@@ -222,33 +222,37 @@
   const locationsQuery = createInfiniteQuery(() => ({
     queryKey: ["locations"],
     queryFn: ({ pageParam }) =>
-      getCategoriesApiCategoriesGet({ query: { type: "location", page: pageParam } }),
+      getCategoriesApiCategoriesGet({ query: { type: "location", page: pageParam, size: 500 } }),
     getNextPageParam,
     initialPageParam: 1,
+    staleTime: 1000 * 60 * 10, // 10 minutes
   }));
 
   const topicsQuery = createInfiniteQuery(() => ({
     queryKey: ["topics"],
     queryFn: ({ pageParam }) =>
-      getCategoriesApiCategoriesGet({ query: { type: "topic", page: pageParam } }),
+      getCategoriesApiCategoriesGet({ query: { type: "topic", page: pageParam, size: 1000 } }),
     getNextPageParam,
     initialPageParam: 1,
+    staleTime: 1000 * 60 * 10, // 10 minutes
   }));
 
   const charactersQuery = createInfiniteQuery(() => ({
     queryKey: ["characters"],
     queryFn: ({ pageParam }) =>
-      getCategoriesApiCategoriesGet({ query: { type: "character", page: pageParam } }),
+      getCategoriesApiCategoriesGet({ query: { type: "character", page: pageParam, size: 500 } }),
     getNextPageParam,
     initialPageParam: 1,
+    staleTime: 1000 * 60 * 10, // 10 minutes
   }));
 
   const timePeriodsQuery = createInfiniteQuery(() => ({
     queryKey: ["timePeriods"],
     queryFn: ({ pageParam }) =>
-      getCategoriesApiCategoriesGet({ query: { type: "time_period", page: pageParam } }),
+      getCategoriesApiCategoriesGet({ query: { type: "time_period", page: pageParam, size: 500 } }),
     getNextPageParam,
     initialPageParam: 1,
+    staleTime: 1000 * 60 * 10, // 10 minutes
   }));
 
   const mapCategoriesDataToOptions = (category: Category[]) => {
@@ -379,7 +383,7 @@
   </div>
 
   <div class="overflow-hidden rounded-md border shadow-xs mb-5">
-    <Table.Root>
+    <Table.Root class="sm:layout-fixed">
       <Table.Header>
         {#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
           <Table.Row>

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from fastapi_pagination import Page
+from fastapi_pagination.customization import CustomizedPage, UseParamsFields
 from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlmodel import Session
 
@@ -43,7 +44,17 @@ def get_episode(
     return episode
 
 
-@router.get("/categories", tags=["categories"], response_model=Page[Category])
+CustomPage = CustomizedPage[
+    Page,
+    UseParamsFields(
+        size=Query(100, ge=1, le=1000),
+    ),
+]
+
+
+@router.get(
+    "/categories", tags=["categories"], response_model=CustomPage[Category]
+)
 def get_categories(
     service: CategoriesService = Depends(get_categories_service),
     session: Session = Depends(get_session),

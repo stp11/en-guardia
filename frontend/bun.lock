@@ -8,6 +8,7 @@
         "@hey-api/client-fetch": "^0.13.1",
         "@sveltejs/adapter-static": "^3.0.10",
         "@tanstack/svelte-query": "^6.0.11",
+        "@tanstack/svelte-virtual": "^3.13.16",
       },
       "devDependencies": {
         "@eslint/compat": "^1.4.0",
@@ -276,7 +277,11 @@
 
     "@tanstack/svelte-query": ["@tanstack/svelte-query@6.0.11", "", { "dependencies": { "@tanstack/query-core": "5.90.13" }, "peerDependencies": { "svelte": "^5.25.0" } }, "sha512-BWwEKA2ScHnndBvh5yCZC+mcMHbEFqzKFd7nNtiQFehz1hgoy/s3fhpWLeQS2m9OQPLPKnuIcKFZR6qiwkRtUQ=="],
 
+    "@tanstack/svelte-virtual": ["@tanstack/svelte-virtual@3.13.16", "", { "dependencies": { "@tanstack/virtual-core": "3.13.16" }, "peerDependencies": { "svelte": "^3.48.0 || ^4.0.0 || ^5.0.0" } }, "sha512-LRDPRzAPTIiDjiCA9lhNlFnZRLj/XsNhzNRsT5JEA8hzcBmZw8avdYYVjydPAy0ObFJgG1zBAm9Dtvwqju36sg=="],
+
     "@tanstack/table-core": ["@tanstack/table-core@8.21.3", "", {}, "sha512-ldZXEhOBb8Is7xLs01fR3YEc3DERiz5silj8tnGkFZytt1abEvl/GhUmCE0PMLaMPTa3Jk4HbKmRlHmu+gCftg=="],
+
+    "@tanstack/virtual-core": ["@tanstack/virtual-core@3.13.16", "", {}, "sha512-njazUC8mDkrxWmyZmn/3eXrDcP8Msb3chSr4q6a65RmwdSbMlMCdnOphv6/8mLO7O3Fuza5s4M4DclmvAO5w0w=="],
 
     "@trivago/prettier-plugin-sort-imports": ["@trivago/prettier-plugin-sort-imports@5.2.2", "", { "dependencies": { "@babel/generator": "^7.26.5", "@babel/parser": "^7.26.7", "@babel/traverse": "^7.26.7", "@babel/types": "^7.26.7", "javascript-natural-sort": "^0.7.1", "lodash": "^4.17.21" }, "peerDependencies": { "@vue/compiler-sfc": "3.x", "prettier": "2.x - 3.x", "prettier-plugin-svelte": "3.x", "svelte": "4.x || 5.x" }, "optionalPeers": ["@vue/compiler-sfc", "prettier-plugin-svelte", "svelte"] }, "sha512-fYDQA9e6yTNmA13TLVSA+WMQRc5Bn/c0EUBditUHNfMMxN7M82c38b1kEggVE3pLpZ0FwkwJkUEKMiOi52JXFA=="],
 
